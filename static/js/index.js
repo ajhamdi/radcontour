@@ -774,82 +774,83 @@ function initGallery() {
     });
     if (list.length) show(list[0]);
   }
+  var timer = null, io = null;
   function show(it) {
+    if (timer) { clearInterval(timer); timer = null; }
+    if (io) { io.disconnect(); io = null; }
     view.innerHTML = '';
     var head = el('div', 'gal-head');
     head.appendChild(el('h4', null, it.title));
-        head.appendChild(el('span', 'q', '\u201c' + it.prompt + '\u201d'));
+    head.appendChild(el('span', 'q', '\u201c' + it.prompt + '\u201d'));
     head.appendChild(el('span', 'chip', 'Dice ' + fmt(it.dice.ours)));
     view.appendChild(head);
-    var grid = el('div', 'gal-grid');
 
-    // 2D: compare slider; the left side can show the image, the ground truth or the baseline
-    var left = el('div');
-    var sub = el('div', 'gal-sub');
-    var opts = [['gt', 'Ground truth'], ['img', 'Image']];
-    if (it.files.voxtell) opts.push(['voxtell', 'VoxTell']);
+    // compare slider: RadContour on the right; the left shows the ground truth, the image or VoxTell
+    var wrap = el('div', 'gal-main');
+    var opts = [['gt', 'Ground truth'], ['img', 'Image'], ['voxtell', 'VoxTell']];
     var seg = el('div', 'seg seg-light gal-toggle');
     seg.style.gridTemplateColumns = 'repeat(' + opts.length + ', auto)';
-    sub.appendChild(seg); left.appendChild(sub);
-    var box = el('div', 'img-compare');
-    var under = document.createElement('img'); under.className = 'ic-under'; under.src = it.files.ours; under.alt = 'RadContour';
-    var overD = el('div', 'ic-over'), overI = document.createElement('img'); overI.src = it.files.gt; overI.alt = '';
-    overD.appendChild(overI);
+    var sub = el('div', 'gal-sub'); sub.appendChild(seg); wrap.appendChild(sub);
+    var box = el('div', 'img-compare gal-compare');
+    var under = el('div', 'ic-under gal-frame'), overD = el('div', 'ic-over'), over = el('div', 'gal-frame');
+    under.style.aspectRatio = it.w + ' / ' + it.h;
+    under.style.backgroundImage = 'url(' + it.files.ours + ')';
+    over.style.backgroundImage = 'url(' + it.files.gt + ')';
+    overD.appendChild(over);
     var hd = el('div', 'ic-handle'); hd.innerHTML = '<span class="ic-arrow-l"></span><span class="ic-arrow-r"></span>';
-    var labL = el('span', 'ic-label ic-label-left', 'Ground truth'), labR = el('span', 'ic-label ic-label-right', 'RadContour');
+    var labL = el('span', 'ic-label ic-label-left', 'Ground truth');
+    var labR = el('span', 'ic-label ic-label-right', 'RadContour ' + fmt(it.dice.ours));
     [under, overD, hd, labL, labR].forEach(function (n) { box.appendChild(n); });
-    left.appendChild(box);
-    var slice = '';
+    wrap.appendChild(box);
     opts.forEach(function (o, k) {
       var b = el('button', k === 0 ? 'is-active' : '', o[1]); b.type = 'button';
       b.addEventListener('click', function () {
         seg.querySelectorAll('button').forEach(function (x) { x.classList.remove('is-active'); });
-        b.classList.add('is-active'); overI.src = it.files[o[0] + slice] || it.files[o[0]];
-        overI.setAttribute('data-k', o[0]);
+        b.classList.add('is-active');
+        over.style.backgroundImage = 'url(' + it.files[o[0]] + ')';
         labL.textContent = o[1] + (o[0] === 'voxtell' ? ' ' + fmt(it.dice.voxtell) : '');
       });
       seg.appendChild(b);
     });
-    overI.setAttribute('data-k', 'gt');
-    if (it.files.img1) {
-      var s2 = el('div', 'seg seg-light gal-toggle'); s2.style.gridTemplateColumns = 'auto auto'; s2.style.marginTop = '0.5rem';
-      ['Level 1', 'Level 2'].forEach(function (t, k) {
-        var b = el('button', k === 0 ? 'is-active' : '', t); b.type = 'button';
-        b.addEventListener('click', function () {
-          s2.querySelectorAll('button').forEach(function (x) { x.classList.remove('is-active'); });
-          b.classList.add('is-active'); slice = k ? '1' : '';
-          under.src = it.files['ours' + slice];
-          var key = overI.getAttribute('data-k');
-          overI.src = it.files[key + slice] || it.files[key];
-        });
-        s2.appendChild(b);
-      });
-      left.appendChild(s2);
-    }
-    grid.appendChild(left);
     initCompare(box, 50);
 
-    // 3D
-    var right = el('div');
-        var g3 = el('div', 'gal-3d ' + (it.files.voxtell3d ? 'c3' : 'c2'));
-    var f3 = [['gt3d', 'Ground truth', null], ['ours3d', 'RadContour', it.dice.ours]];
-    if (it.files.voxtell3d) f3.push(['voxtell3d', 'VoxTell', it.dice.voxtell]);
-    f3.forEach(function (f) {
-      if (!it.files[f[0]]) return;
-      var fig = el('figure', f[0] === 'ours3d' ? 'is-ours' : '');
-      var im = document.createElement('img'); im.src = it.files[f[0]]; im.alt = f[1] + ' 3D'; im.loading = 'lazy';
-      fig.appendChild(im);
-      if (f[2] !== null && f[2] !== undefined) fig.appendChild(el('span', 'dice-chip', fmt(f[2])));
-      fig.appendChild(el('figcaption', null, f[1]));
-      g3.appendChild(fig);
-    });
-    right.appendChild(g3);
-    if (it.group === 'lesion') {
-      var eb = document.createElement('img'); eb.src = 'static/assets/figs/errbar.png'; eb.className = 'gal-errbar'; eb.alt = 'surface distance color bar, 0 to 10 mm';
-      right.appendChild(eb);
+    // slices roll continuously; the slider or the button stops them
+    var n = it.n, idx = it.start || 0, playing = !REDUCED;
+    var ctrl = el('div', 'roll-ctrl');
+    var btn = el('button'); btn.type = 'button'; btn.setAttribute('aria-label', 'Play or pause');
+    var range = document.createElement('input'); range.type = 'range'; range.className = 'range';
+    range.min = 0; range.max = n - 1; range.value = idx;
+    var pos = el('span', 'roll-pos');
+    ctrl.appendChild(btn); ctrl.appendChild(range); ctrl.appendChild(pos);
+    wrap.appendChild(ctrl);
+    function frame(i) {
+      idx = (i + n) % n;
+      var y = n > 1 ? (idx / (n - 1) * 100) + '%' : '0%';
+      under.style.backgroundPosition = '0 ' + y; over.style.backgroundPosition = '0 ' + y;
+      range.value = idx; pos.textContent = 'slice ' + (idx + 1) + ' / ' + n;
     }
-    grid.appendChild(right);
-    view.appendChild(grid);
+    function setPlay(p) {
+      playing = p;
+      btn.innerHTML = p ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+      if (timer) { clearInterval(timer); timer = null; }
+      if (p) timer = setInterval(function () { frame(idx + 1); }, 160);
+    }
+    btn.addEventListener('click', function () { setPlay(!playing); });
+    range.addEventListener('input', function () { setPlay(false); frame(parseInt(range.value, 10)); });
+    box.addEventListener('wheel', function (e) { e.preventDefault(); setPlay(false); want = false; frame(idx + (e.deltaY > 0 ? 1 : -1)); }, { passive: false });
+    var want = !REDUCED;
+    frame(idx);
+    setPlay(false);
+    if ('IntersectionObserver' in window) {
+      io = new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting && want) setPlay(true);
+        else if (!es[0].isIntersecting && playing) setPlay(false);
+      });
+      io.observe(box);
+      btn.addEventListener('click', function () { want = playing; });
+      range.addEventListener('input', function () { want = false; });
+    } else if (want) setPlay(true);
+    view.appendChild(wrap);
   }
   groupTabs.forEach(function (li) {
     li.addEventListener('click', function () {
@@ -857,7 +858,7 @@ function initGallery() {
       li.classList.add('is-active'); group = li.getAttribute('data-group'); chips();
     });
   });
-  getJSON('static/data/qual.json').then(function (d) { items = d; chips(); }).catch(function () {});
+  getJSON('static/data/gallery.json').then(function (d) { items = d; chips(); }).catch(function () {});
 }
 
 /* ------------------------------------------------------------------ init -- */

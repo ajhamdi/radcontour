@@ -332,18 +332,10 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
 .gal-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem; margin-bottom: 0.8rem; }
 .gal-head h4 { font-size: 1.1rem; font-weight: 700; }
 .gal-head .q { font-style: italic; color: var(--ink-2); font-size: 0.9rem; }
-.gal-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 1rem; align-items: start; }
-.gal-sub { margin-bottom: 0.4rem; display: flex; justify-content: flex-end; }
-.gal-3d { display: grid; gap: 0.5rem; }
-.gal-3d.c3 { grid-template-columns: repeat(3, 1fr); }
-.gal-3d.c2 { grid-template-columns: repeat(2, 1fr); }
-.gal-3d figure { margin: 0; border: 1px solid #f1f5f9; border-radius: 8px; padding: 0.3rem; position: relative; }
-.gal-3d img { display: block; width: 100%; aspect-ratio: 1 / 1.1; object-fit: contain; }
-.gal-3d figcaption { text-align: center; font-size: 0.78rem; font-weight: 600; color: #475569; }
-.gal-3d figure.is-ours figcaption { color: var(--accent-deep); }
-.gal-3d .dice-chip { position: absolute; top: 0.3rem; right: 0.3rem; font-size: 0.7rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: #f1f5f9; color: var(--ink-2); }
-.gal-3d figure.is-ours .dice-chip { background: var(--accent); color: #fff; }
-.gal-errbar { display: block; max-width: 70%; margin: 0.4rem auto 0; }
+.gal-sub { margin-bottom: 0.5rem; display: flex; justify-content: center; }
+.gal-main { max-width: 540px; margin: 0 auto; }
+.gal-frame { display: block; width: 100%; background-repeat: no-repeat; background-size: 100% auto; background-color: #000; }
+.gal-compare .ic-over .gal-frame { height: 100%; }
 
 /* --------------------------------------------------------------- wording -- */
 .word-chart { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07); padding: 1rem 1rem 0.6rem; }
@@ -416,7 +408,7 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
   .loc-scout { display: none; }
   .loc-strip { grid-template-columns: repeat(4, 1fr); }
   .kf-wrap { grid-template-columns: 1fr; }
-  .concept-cards, .wc-groups, .gal-grid { grid-template-columns: 1fr; }
+  .concept-cards, .wc-groups { grid-template-columns: 1fr; }
   .hb-row, .hb-axis { grid-template-columns: 8rem 1fr; }
   .hbar-chart { padding-right: 2.6rem; }
   .bk-chart { --bk-label: 7.4rem; --bk-gap: 0.5rem; --bk-logo: 1.1rem; padding: 1.6rem 2.2rem 0.8rem 0.6rem; }
