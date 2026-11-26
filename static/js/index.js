@@ -335,7 +335,6 @@ function initTurntable(host) {
   var video = document.createElement('video');
   video.muted = true; video.loop = true; video.playsInline = true; video.preload = 'auto';
   video.setAttribute('muted', ''); video.setAttribute('playsinline', '');
-  video.src = host.getAttribute('data-src');
   var cv = document.createElement('canvas');
   var ctx = cv.getContext('2d');
   var handle = el('div', 'ic-handle');
@@ -360,11 +359,14 @@ function initTurntable(host) {
     }
     if (visible) requestAnimationFrame(draw);
   }
+  // the video downloads only when the turntable comes near the viewport
+  var loaded = false;
   new IntersectionObserver(function (es) {
     visible = es[0].isIntersecting;
+    if (visible && !loaded) { loaded = true; video.src = host.getAttribute('data-src'); }
     if (visible) { if (!userPaused && !REDUCED) video.play().catch(function () {}); requestAnimationFrame(draw); }
     else video.pause();
-  }).observe(host);
+  }, { rootMargin: '300px 0px' }).observe(host);
   // draw directly on video events too, so the first frame shows even when animation frames are throttled
   function drawOnce() { var v = visible; visible = false; draw(); visible = v; }
   video.addEventListener('loadeddata', drawOnce);

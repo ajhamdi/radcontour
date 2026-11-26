@@ -103,7 +103,7 @@
         A frozen multimodal LLM segments 3D medical volumes from text by <b>contouring a few slices</b>, as
         radiologists do. <b>No training, no segmentation network.</b>
       </h2>
-      <img class="figure-img teaser-img" src="static/assets/figs/teaser.png"
+      <img class="figure-img teaser-img" src="static/assets/figs/teaser.webp" width="1698" height="1098"
         alt="Text prompts on MRI, PET and CT become 3D masks through a frozen MLLM, boxes, outlines and 3D assembly">
     </div>
   </section>
@@ -156,10 +156,19 @@
 
       <div class="v3d" id="v3d">
         <div class="v3d-tabs" role="tablist">
-          <button class="v3d-tab is-active" data-scene="btcv"><i class="fas fa-lungs"></i> Abdomen CT</button>
-          <button class="v3d-tab" data-scene="hvsmr"><i class="fas fa-heart"></i> Heart MRI</button>
-          <button class="v3d-tab" data-scene="pengwin"><i class="fas fa-bone"></i> Pelvis CT</button>
-          <button class="v3d-tab" data-scene="spleen"><i class="fas fa-layer-group"></i> Keyframes to 3D</button>
+          <div class="v3d-tabgroup">
+            <span class="v3d-tabgroup-lab">Anatomy</span>
+            <button class="v3d-tab is-active" data-scene="btcv"><i class="fas fa-lungs"></i> Abdomen CT</button>
+            <button class="v3d-tab" data-scene="hvsmr"><i class="fas fa-heart"></i> Heart MRI</button>
+            <button class="v3d-tab" data-scene="pengwin"><i class="fas fa-bone"></i> Pelvis CT</button>
+            <button class="v3d-tab" data-scene="spleen"><i class="fas fa-layer-group"></i> Keyframes to 3D</button>
+          </div>
+          <div class="v3d-tabgroup">
+            <span class="v3d-tabgroup-lab">Tumors</span>
+            <button class="v3d-tab" data-scene="sts"><i class="fas fa-crosshairs"></i> Sarcoma MRI</button>
+            <button class="v3d-tab" data-scene="hcc"><i class="fas fa-crosshairs"></i> Liver cancer CT</button>
+            <button class="v3d-tab" data-scene="acrin"><i class="fas fa-crosshairs"></i> Lung tumor PET</button>
+          </div>
         </div>
 
         <div class="v3d-main">
@@ -198,23 +207,24 @@
             </div>
             <div class="v3d-group v3d-slicecard" id="v3d-slicegrp">
               <div class="v3d-label">Slice in the 3D view <span class="v3d-val" id="v3d-slice-val"></span></div>
+              <input type="range" id="v3d-slice" min="0" max="71" value="30" class="range">
               <div class="seg seg-4" id="v3d-view2d">
                 <button data-view="input">Scan</button>
                 <button data-view="gt">GT</button>
-                <button data-view="ours">Ours</button>
-                <button data-view="compare" class="is-active">Compare</button>
+                <button data-view="ours" class="is-active">Ours</button>
+                <button data-view="compare">Compare</button>
               </div>
+
               <div class="v3d-slicebox" id="v3d-slicebox">
-                <div class="img-compare" id="v3d-cmp">
+                <div class="img-compare" id="v3d-cmp" hidden>
                   <img class="ic-under" id="v3d-img-ours" alt="RadContour on the current slice">
                   <div class="ic-over"><img id="v3d-img-gt" alt="Ground truth on the current slice"></div>
                   <div class="ic-handle"><span class="ic-arrow-l"></span><span class="ic-arrow-r"></span></div>
                   <span class="ic-label ic-label-left">GT</span>
                   <span class="ic-label ic-label-right">Ours</span>
                 </div>
-                <img id="v3d-img-single" class="v3d-single" alt="Current slice" hidden>
+                <img id="v3d-img-single" class="v3d-single" alt="Current slice">
               </div>
-              <input type="range" id="v3d-slice" min="0" max="71" value="30" class="range">
               <div class="v3d-checks">
                 <label class="v3d-check"><input type="checkbox" id="v3d-plane" checked> show plane</label>
                 <label class="v3d-check"><input type="checkbox" id="v3d-cut"> cut at plane</label>
@@ -273,8 +283,8 @@
   <section class="section alt-section" id="method">
     <div class="container is-max-desktop">
       <h2 class="title is-3 has-text-centered">How It Works</h2>
-      <img class="figure-img zoomable" src="static/assets/figs/pipeline.png"
-        alt="RadContour pipeline: plan, coarse-to-fine localization, keyframe contouring, 3D assembly" width="100%">
+      <img class="figure-img zoomable" src="static/assets/figs/pipeline.webp" loading="lazy" decoding="async"
+        alt="RadContour pipeline: plan, coarse-to-fine localization, keyframe contouring, 3D assembly" width="2393" height="1061">
 
       <div class="stepper" id="stepper">
         <div class="stepper-tabs">

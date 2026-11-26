@@ -90,7 +90,9 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
 
 /* ------------------------------------------------------------ 3D viewer -- */
 .v3d { margin-top: 1.2rem; }
-.v3d-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin-bottom: 0.8rem; }
+.v3d-tabs { display: flex; flex-direction: column; align-items: center; gap: 0.45rem; margin-bottom: 0.8rem; }
+.v3d-tabgroup { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.4rem; }
+.v3d-tabgroup-lab { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); width: 4.6rem; text-align: right; margin-right: 0.2rem; }
 .v3d-tab {
   font-family: 'Google Sans', sans-serif; font-size: 0.92rem; color: var(--ink-2); background: #fff;
   border: 1px solid var(--line); border-radius: 999px; padding: 0.4rem 1rem; cursor: pointer; transition: all 0.2s;
@@ -162,12 +164,12 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
 .lg-dice { font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .v3d-slicecard { border-top: 1px solid var(--line); padding-top: 0.9rem; }
-.seg-4 { grid-template-columns: repeat(4, 1fr); margin-bottom: 0.5rem; }
+.seg-4 { grid-template-columns: repeat(4, 1fr); margin: 0.35rem 0 0.5rem; }
 .seg-4 button { font-size: 0.76rem; padding: 0.3rem 0.1rem; }
-.v3d-slicebox { position: relative; border-radius: 10px; overflow: hidden; background: #0a0a0a; box-shadow: 0 0 0 2px var(--accent); margin-bottom: 0.4rem; }
+.v3d-slicebox { position: relative; border-radius: 10px; overflow: hidden; background: #0a0a0a; box-shadow: 0 0 0 2px var(--accent); margin-bottom: 0.5rem; }
 .v3d-slicebox .img-compare { border-radius: 0; box-shadow: none; }
 .v3d-slicebox .img-compare[hidden], .v3d-single[hidden] { display: none; }
-.v3d-slicebox .ic-label { top: 0; bottom: auto; margin: 0.4rem; font-size: 0.7rem; padding: 1px 7px; }
+.v3d-slicebox .img-compare .ic-label { top: 0; bottom: auto; margin: 0.4rem; font-size: 0.7rem; padding: 1px 7px; }
 .v3d-single { display: block; width: 100%; }
 .v3d-checks { display: flex; gap: 1rem; }
 .v3d-checks .v3d-check { margin-top: 0.2rem; }
@@ -440,4 +442,7 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
 #wording .subtitle, #backbones .subtitle { margin-bottom: 1.2rem; }
 @media (max-width: 600px) {
   .v3d-side { display: flex; }
+}
+@media (max-width: 768px) {
+  .v3d-tabgroup-lab { width: 100%; text-align: center; margin: 0; }
 }

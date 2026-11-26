@@ -44,10 +44,11 @@ function init() {
 
   const clip = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
   const ui = {
-    view2d: 'compare',
+    view2d: 'ours',
     mode: 'ours', split: 0.5, cut: false, showPlane: true, slice: 0, asm: 1, hidden: new Set(), hover: null,
   };
   let S = null;                 // current scene state
+  const preloaded = new Set();  // 2D slice images already requested
   const cache = {};             // scene name -> {data, groups}
   let visible = true;
   let pending = false;          // a redraw is requested
@@ -168,7 +169,7 @@ function init() {
     if (S.plane) {
       const n = d.plane.n;
       $('v3d-slice').max = n - 1;
-      ui.slice = Math.round(n * 0.42);
+      ui.slice = d.plane.start != null ? d.plane.start : Math.round(n * 0.42);
       $('v3d-slice').value = ui.slice;
       // preload slice textures and roll images in the background
       setTimeout(() => { for (let i = 0; i < n; i++) texFor(i); preloadRoll(); }, 300);
@@ -249,10 +250,17 @@ function init() {
     }
   }
   function preloadRoll() {
+    if (!S || !S.data.roll) return;
     const r = S.data.roll;
     for (let i = 0; i < r.n; i++) {
       const f = String(i).padStart(3, '0');
-      for (const p of ['ours', 'gt', 'input']) { const im = new Image(); im.src = `${r.dir}${p}_${f}.jpg`; }
+      // only the images of the 2D view on screen (compare needs two)
+      for (const p of (ui.view2d === 'compare' ? ['ours', 'gt'] : [ui.view2d])) {
+        const key = `${r.dir}${p}_${f}`;
+        if (preloaded.has(key)) continue;
+        preloaded.add(key);
+        const im = new Image(); im.src = `${key}.jpg`;
+      }
     }
   }
 
@@ -354,6 +362,7 @@ function init() {
     $('v3d-cmp').hidden = ui.view2d !== 'compare';
     $('v3d-img-single').hidden = ui.view2d === 'compare';
     applySlice();
+    preloadRoll();
   }));
 
   // scroll on the 2D slice steps through the volume
