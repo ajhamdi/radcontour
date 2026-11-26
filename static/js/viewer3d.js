@@ -282,6 +282,29 @@ function init() {
   function buildLegend() {
     const host = $('v3d-legend');
     host.innerHTML = '';
+    const slugs = [...new Set(S.meshes.map((m) => m.userData.slug))];
+    const items = [];
+    // "Select all": one tick above the chips that shows or hides every structure
+    let all = null;
+    if (slugs.length > 1) {
+      const row = document.createElement('label');
+      row.className = 'lg-all';
+      row.innerHTML = '<input type="checkbox" checked> Select all';
+      all = row.querySelector('input');
+      all.addEventListener('change', () => {
+        if (all.checked) ui.hidden.clear(); else slugs.forEach((s) => ui.hidden.add(s));
+        items.forEach(([it, s]) => it.classList.toggle('is-off', ui.hidden.has(s)));
+        syncAll();
+        applyVisibility(); if (S.rings) applyAsm(); draw();
+      });
+      host.appendChild(row);
+    }
+    function syncAll() {
+      if (!all) return;
+      const off = slugs.filter((s) => ui.hidden.has(s)).length;
+      all.checked = off === 0;
+      all.indeterminate = off > 0 && off < slugs.length;
+    }
     const seen = new Set();
     for (const m of S.meshes) {
       const u = m.userData;
@@ -295,11 +318,13 @@ function init() {
       item.addEventListener('click', () => {
         if (ui.hidden.has(u.slug)) ui.hidden.delete(u.slug); else ui.hidden.add(u.slug);
         item.classList.toggle('is-off', ui.hidden.has(u.slug));
+        syncAll();
         applyVisibility(); if (S.rings) applyAsm(); draw();
       });
       item.addEventListener('mouseenter', () => highlight(u.slug));
       item.addEventListener('mouseleave', () => highlight(null));
       host.appendChild(item);
+      items.push([item, u.slug]);
     }
   }
   function highlight(slug) {

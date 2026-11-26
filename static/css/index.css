@@ -157,6 +157,8 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
 .v3d-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem; margin-top: 0.7rem; }
 .lg-item { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--ink); padding: 0.2rem 0.6rem; border: 1px solid var(--line); border-radius: 999px; background: #fff; cursor: pointer; user-select: none; }
 .lg-item:hover { border-color: var(--accent); }
+.lg-all { flex-basis: 100%; display: flex; justify-content: center; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 600; color: var(--ink-2); cursor: pointer; user-select: none; }
+.lg-all input { accent-color: var(--accent); cursor: pointer; }
 .lg-item.is-off { opacity: 0.35; }
 .lg-item.is-off .lg-sw { background: transparent !important; box-shadow: inset 0 0 0 1px #94a3b8; }
 .lg-sw { width: 0.8rem; height: 0.8rem; border-radius: 3px; }
