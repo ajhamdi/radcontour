@@ -48,55 +48,6 @@ var ANAT_ROWS = [
   { name: 'RadContour', model: 'Sonnet 5.5', ours: 'main', v: [62.3, 84.1, 47.5, 49.0, 89.8, 66.5] }
 ];
 
-// Table 3 (3D semantic segmentation): BTCV, AMOS, BraTS means. Every baseline has seen voxel labels of these structures.
-var STD = {
-  cols: [
-    { name: 'BTCV', what: 'abdominal organs, CT' },
-    { name: 'AMOS', what: 'abdominal organs, MRI' },
-    { name: 'BraTS', what: 'brain tumor regions, MRI' }
-  ],
-  rows: [
-    ['UNet', [null, null, 54.4]], ['V-Net', [null, null, 84.2]], ['ResUNet++', [null, null, 78.4]],
-    ['Attention U-Net', [null, null, 79.8]], ['nnFormer', [null, null, 81.2]], ['UNETR', [null, null, 87.1]],
-    ['SegResNet', [null, null, 89.0]], ['Swin-UNETR', [null, null, 88.6]], ['TotalVibeSeg.', [79.2, 79.6, 83.0]],
-    ['Swin-BOB', [88.2, 84.0, 89.4]], ['VoxTell', [88.2, 86.4, 88.4]],
-    ['RadContour (Haiku 5.5)', [71.8, 62.7, 62.2], true], ['RadContour (Sonnet 5.5)', [76.7, 69.9, 73.9], true]
-  ]
-};
-
-// Table 5 (wording): anatomy (10 prompts) and tumors (2 prompts), label / synonym / description.
-var WORDING = {
-  groups: ['Anatomy', 'Tumors'],
-  kinds: ['label', 'synonym', 'description'],
-  vox: [[91.6, 91.3, 65.9], [29.7, 28.0, 20.6]],
-  ours: [[78.3, 78.0, 78.2], [48.0, 72.8, 68.3]]
-};
-
-// Figure 6: 25 backbones on the same ten pelvic CT volumes (PENGWIN), unchanged pipeline.
-var BACKBONES = [
-  ['Fable 5.2', 'anthropic', 89.4], ['GPT-6.1 Terra', 'openai', 88.7], ['Opus 5.5', 'anthropic', 88.5],
-  ['Gemini 4 Carbon', 'google', 88.3], ['Gemini 4 Argon', 'google', 88.1], ['Sonnet 5.5', 'anthropic', 86.9],
-  ['Gemini 4 Hydrogen', 'google', 85.1], ['Haiku 5.5', 'anthropic', 82.5], ['Gemini 3.8 Flash', 'google', 81.2],
-  ['Opus 5', 'anthropic', 80.9], ['GPT-6 Luna', 'openai', 73.8], ['GPT-5.6 Luna', 'openai', 69.7],
-  ['Gemini 3.5 Flash', 'google', 67.0], ['Gemini 3.1 Pro', 'google', 61.4], ['GLM 5.3 Flash', 'zai', 51.7, true],
-  ['Qwen3.8 27B', 'alibaba', 41.9, true], ['Qwen3.5 397B', 'alibaba', 41.0, true], ['Sonnet 5', 'anthropic', 39.5],
-  ['Gemini 3.5 Flash-Lite', 'google', 34.7], ['Muse Glimmer 30B', 'meta', 33.0, true], ['Gemma 4 26B', 'google', 23.9, true],
-  ['Gemini 3.1 Flash-Lite', 'google', 11.6], ['Qwen3.5 9B', 'alibaba', 11.0, true], ['GLM 4.6V', 'zai', 8.0, true],
-  ['Haiku 4.5', 'anthropic', 5.2]
-];
-var FAMILIES = [['anthropic', 'Anthropic'], ['openai', 'OpenAI'], ['google', 'Google'], ['alibaba', 'Alibaba'],
-  ['zai', 'Z.ai'], ['meta', 'Meta']];
-var GENERATIONS = [['Haiku 4.5', 'Haiku 5.5'], ['Sonnet 5', 'Sonnet 5.5'], ['Gemini 3.1 Flash-Lite', 'Gemini 3.5 Flash-Lite']];
-var BK_REF = { label: 'VoxTell', v: 96.7 };
-
-/* --------------------------------------------------------------- helpers -- */
-
-function el(tag, cls, text) {
-  var e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text !== undefined && text !== null) e.textContent = text;
-  return e;
-}
 function fmt(v) { return v === null || v === undefined ? '\u2013' : v.toFixed(1); }
 function pad3(i) { return ('00' + i).slice(-3); }
 function onVisible(node, fn, threshold) {
@@ -673,26 +624,6 @@ function renderHChart(prefix, cols, rows) {
 
 }
 
-function renderStd() {
-  var host = document.getElementById('std-grid');
-  if (!host) return;
-  STD.cols.forEach(function (c, j) {
-    var card = el('div', 'std-card');
-    card.appendChild(el('h4', null, c.name));
-    card.appendChild(el('div', 'std-what', c.what));
-    var rows = STD.rows.filter(function (r) { return r[1][j] !== null; }).sort(function (a, b) { return b[1][j] - a[1][j]; });
-    rows.forEach(function (r) {
-      var row = el('div', 'std-row' + (r[2] ? ' ours' : ''));
-      row.appendChild(el('span', null, r[0]));
-      var t = el('div', 't'), i = el('i'); i.setAttribute('data-w', r[1][j]); t.appendChild(i);
-      row.appendChild(t); row.appendChild(el('b', null, fmt(r[1][j])));
-      card.appendChild(row);
-    });
-    host.appendChild(card);
-  });
-  onVisible(host, function () { host.querySelectorAll('i[data-w]').forEach(function (i) { i.style.width = i.getAttribute('data-w') + '%'; }); });
-}
-
 function conceptBars() {
   document.querySelectorAll('.concept-cards').forEach(function (h) {
     onVisible(h, function () { h.querySelectorAll('.cc-bar').forEach(function (b) { b.style.width = b.getAttribute('data-w') + '%'; }); });
@@ -912,7 +843,6 @@ document.addEventListener('DOMContentLoaded', function () {
   renderHChart('lesions', LESION_COLS, LESION_ROWS);
   renderHChart('anatomy', ANAT_COLS, ANAT_ROWS);
   conceptBars();
-  renderStd();
   renderWording();
   renderBackbones();
   initGallery();
