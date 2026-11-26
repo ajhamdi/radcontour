@@ -44,6 +44,7 @@ function init() {
 
   const clip = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
   const ui = {
+    view2d: 'compare',
     mode: 'ours', split: 0.5, cut: false, showPlane: true, slice: 0, asm: 1, hidden: new Set(), hover: null,
   };
   let S = null;                 // current scene state
@@ -163,7 +164,6 @@ function init() {
 
     $('v3d-assembly').hidden = !S.rings;
     $('v3d-slicegrp').hidden = !S.plane;
-    $('v3d-slice2d').hidden = !S.plane;
     if (S.rings) { ui.asm = 1; $('v3d-asm').value = 100; applyAsm(); }
     if (S.plane) {
       const n = d.plane.n;
@@ -243,7 +243,7 @@ function init() {
       const f = String(ui.slice).padStart(3, '0');
       $('v3d-img-ours').src = `${r.dir}ours_${f}.jpg`;
       $('v3d-img-gt').src = `${r.dir}gt_${f}.jpg`;
-      $('v3d-img-input').src = `${r.dir}input_${f}.jpg`;
+      if (ui.view2d !== 'compare') $('v3d-img-single').src = `${r.dir}${ui.view2d}_${f}.jpg`;
     } else {
       clip.constant = 1e6;
     }
@@ -347,9 +347,18 @@ function init() {
   controls.addEventListener('change', draw);
   window.addEventListener('rc:scene', (e) => show(e.detail));
 
+  // 2D slice: scan / ground truth / ours / compare slider
+  document.querySelectorAll('#v3d-view2d button').forEach((b) => b.addEventListener('click', () => {
+    ui.view2d = b.dataset.view;
+    document.querySelectorAll('#v3d-view2d button').forEach((x) => x.classList.toggle('is-active', x === b));
+    $('v3d-cmp').hidden = ui.view2d !== 'compare';
+    $('v3d-img-single').hidden = ui.view2d === 'compare';
+    applySlice();
+  }));
+
   // scroll on the 2D slice steps through the volume
   const cmp = $('v3d-cmp');
-  cmp.addEventListener('wheel', (e) => {
+  $('v3d-slicebox').addEventListener('wheel', (e) => {
     if (!S || !S.plane) return;
     e.preventDefault();
     ui.slice = Math.max(0, Math.min(S.data.plane.n - 1, ui.slice + (e.deltaY > 0 ? 1 : -1)));

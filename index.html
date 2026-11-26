@@ -108,20 +108,8 @@
     </div>
   </section>
 
-  <!-- Video -->
-  <section class="section alt-section" id="video">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered">Video</h2>
-      <div class="video-frame">
-        <video controls preload="metadata" poster="static/assets/video/promo_poster.jpg" playsinline>
-          <source src="static/assets/video/radcontour_promo.mp4" type="video/mp4">
-        </video>
-      </div>
-    </div>
-  </section>
-
   <!-- Abstract -->
-  <section class="section">
+  <section class="section alt-section">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
@@ -159,12 +147,11 @@
   </section>
 
   <!-- Interactive 3D -->
-  <section class="section alt-section" id="explore3d">
+  <section class="section" id="explore3d">
     <div class="container is-max-widescreen">
       <div class="has-text-centered">
         <h2 class="title is-3">Explore in 3D</h2>
-        <p class="subtitle is-6">Drag to rotate. <b>Compare</b> sweeps a divider through the scene; the slice slider moves a
-          CT plane through it.</p>
+        <p class="subtitle is-6">Drag to rotate. The slice on the right is the plane cutting through the 3D view.</p>
       </div>
 
       <div class="v3d" id="v3d">
@@ -176,24 +163,28 @@
         </div>
 
         <div class="v3d-main">
-          <div class="v3d-stage" id="v3d-stage">
-            <canvas id="v3d-canvas"></canvas>
-            <div class="v3d-split" id="v3d-split" hidden>
-              <div class="v3d-split-line"></div>
-              <div class="v3d-split-knob"><i class="fas fa-arrows-alt-h"></i></div>
-              <span class="v3d-split-lab v3d-split-left">Ground truth</span>
-              <span class="v3d-split-lab v3d-split-right">RadContour</span>
+          <div class="v3d-left">
+            <div class="v3d-stage" id="v3d-stage">
+              <canvas id="v3d-canvas"></canvas>
+              <div class="v3d-split" id="v3d-split" hidden>
+                <div class="v3d-split-line"></div>
+                <div class="v3d-split-knob"><i class="fas fa-arrows-alt-h"></i></div>
+                <span class="v3d-split-lab v3d-split-left">Ground truth</span>
+                <span class="v3d-split-lab v3d-split-right">RadContour</span>
+              </div>
+              <div class="v3d-tip" id="v3d-tip" hidden></div>
+              <div class="v3d-loading" id="v3d-loading"><span class="spinner"></span>Loading</div>
+              <div class="v3d-fallback" id="v3d-fallback" hidden>This viewer needs WebGL.</div>
+              <div class="v3d-hud"><span id="v3d-title">Abdomen CT</span><span class="v3d-dice" id="v3d-dice"></span></div>
+              <button class="v3d-iconbtn" id="v3d-spin" title="Auto-rotate"><i class="fas fa-sync-alt"></i></button>
+              <button class="v3d-iconbtn v3d-reset" id="v3d-reset" title="Reset view"><i class="fas fa-crosshairs"></i></button>
             </div>
-            <div class="v3d-tip" id="v3d-tip" hidden></div>
-            <div class="v3d-loading" id="v3d-loading"><span class="spinner"></span>Loading</div>
-            <div class="v3d-fallback" id="v3d-fallback" hidden>This viewer needs WebGL.</div>
-            <div class="v3d-hud"><span id="v3d-title">Abdomen CT</span><span class="v3d-dice" id="v3d-dice"></span></div>
-            <button class="v3d-iconbtn" id="v3d-spin" title="Auto-rotate"><i class="fas fa-sync-alt"></i></button>
-            <button class="v3d-iconbtn v3d-reset" id="v3d-reset" title="Reset view"><i class="fas fa-crosshairs"></i></button>
+            <div class="v3d-legend" id="v3d-legend" title="Click to hide or show; numbers are Dice"></div>
           </div>
 
           <aside class="v3d-side">
             <div class="v3d-group" id="v3d-modes">
+              <div class="v3d-label">3D view</div>
               <div class="seg">
                 <button data-mode="gt">Ground truth</button>
                 <button data-mode="ours" class="is-active">RadContour</button>
@@ -205,28 +196,31 @@
               <div class="v3d-label">Outlines &rarr; surface <span class="v3d-val" id="v3d-asm-val"></span></div>
               <input type="range" id="v3d-asm" min="0" max="100" value="100" class="range">
             </div>
-            <div class="v3d-group" id="v3d-slicegrp">
-              <div class="v3d-label">Slice <span class="v3d-val" id="v3d-slice-val"></span></div>
+            <div class="v3d-group v3d-slicecard" id="v3d-slicegrp">
+              <div class="v3d-label">Slice in the 3D view <span class="v3d-val" id="v3d-slice-val"></span></div>
+              <div class="seg seg-4" id="v3d-view2d">
+                <button data-view="input">Scan</button>
+                <button data-view="gt">GT</button>
+                <button data-view="ours">Ours</button>
+                <button data-view="compare" class="is-active">Compare</button>
+              </div>
+              <div class="v3d-slicebox" id="v3d-slicebox">
+                <div class="img-compare" id="v3d-cmp">
+                  <img class="ic-under" id="v3d-img-ours" alt="RadContour on the current slice">
+                  <div class="ic-over"><img id="v3d-img-gt" alt="Ground truth on the current slice"></div>
+                  <div class="ic-handle"><span class="ic-arrow-l"></span><span class="ic-arrow-r"></span></div>
+                  <span class="ic-label ic-label-left">GT</span>
+                  <span class="ic-label ic-label-right">Ours</span>
+                </div>
+                <img id="v3d-img-single" class="v3d-single" alt="Current slice" hidden>
+              </div>
               <input type="range" id="v3d-slice" min="0" max="71" value="30" class="range">
-              <label class="v3d-check"><input type="checkbox" id="v3d-cut"> cut at slice</label>
-              <label class="v3d-check"><input type="checkbox" id="v3d-plane" checked> show slice</label>
-            </div>
-            <div class="v3d-group v3d-legend-wrap">
-              <div class="v3d-label">Structures <span class="v3d-hint">Dice</span></div>
-              <div class="v3d-legend" id="v3d-legend"></div>
+              <div class="v3d-checks">
+                <label class="v3d-check"><input type="checkbox" id="v3d-plane" checked> show plane</label>
+                <label class="v3d-check"><input type="checkbox" id="v3d-cut"> cut at plane</label>
+              </div>
             </div>
           </aside>
-        </div>
-
-        <div class="v3d-slice2d" id="v3d-slice2d">
-          <div class="img-compare" id="v3d-cmp">
-            <img class="ic-under" id="v3d-img-ours" alt="RadContour on the current slice">
-            <div class="ic-over"><img id="v3d-img-gt" alt="Ground truth on the current slice"></div>
-            <div class="ic-handle"><span class="ic-arrow-l"></span><span class="ic-arrow-r"></span></div>
-            <span class="ic-label ic-label-left">Ground truth</span>
-            <span class="ic-label ic-label-right">RadContour</span>
-          </div>
-          <img id="v3d-img-input" class="v3d-input" alt="Input slice">
         </div>
       </div>
 
@@ -248,7 +242,7 @@
   </section>
 
   <!-- Slice by slice -->
-  <section class="section" id="naive">
+  <section class="section alt-section" id="naive">
     <div class="container is-max-desktop">
       <div class="has-text-centered">
         <h2 class="title is-3">Why Not Segment Slice by Slice?</h2>
@@ -259,6 +253,18 @@
         <div><span class="vs-big muted">54.8</span><span class="vs-lab">Dice, 4,182 calls</span></div>
         <div class="vs-mid">vs</div>
         <div><span class="vs-big">82.5</span><span class="vs-lab">Dice, 34 calls</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video -->
+  <section class="section" id="video">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Video</h2>
+      <div class="video-frame">
+        <video controls preload="metadata" poster="static/assets/video/promo_poster.jpg" playsinline>
+          <source src="static/assets/video/radcontour_promo.mp4" type="video/mp4">
+        </video>
       </div>
     </div>
   </section>

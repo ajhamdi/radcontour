@@ -463,7 +463,7 @@ function initStepper() {
   if (!root) return;
   var tabs = root.querySelectorAll('.st-tab'), panes = root.querySelectorAll('.st-pane');
   var bar = document.getElementById('st-bar');
-  var M = null, cur = -1, autoTimer = null, built = {};
+  var M = null, cur = -1, autoTimer = null, built = {}, locTimers = [];
   var asmVideo = document.getElementById('asm-video'), asmRange = document.getElementById('asm-range');
   var asmVal = document.getElementById('asm-val');
 
@@ -488,7 +488,7 @@ function initStepper() {
         });
         built[0] = true;
       }
-      typeTokens(document.getElementById('st-plan'), jsonTokens(M.plan), 5);
+      typeTokens(document.getElementById('st-plan'), jsonTokens(M.plan), 2);
     } else if (i === 1) {
       if (!built[1]) {
         var sc = document.getElementById('st-scout');
@@ -514,12 +514,17 @@ function initStepper() {
         strip(document.getElementById('st-fine'), M.fine.slice(0, 8), function (c) { return [c.box]; });
         built[1] = true;
       }
-      var bxs = root.querySelectorAll('.st-pane[data-step="1"] .bx');
+      // coarse boxes one by one, then the fine search range on the scout, then the fine boxes
+      var cbx = root.querySelectorAll('#st-coarse .bx'), fbx = root.querySelectorAll('#st-fine .bx');
       var lines = root.querySelectorAll('.sline');
-      bxs.forEach(function (b) { b.classList.remove('on'); });
-      lines.forEach(function (l) { l.classList.remove('on'); });
-      bxs.forEach(function (b, k) { setTimeout(function () { b.classList.add('on'); }, 150 + k * 140); });
-      lines.forEach(function (l, k) { setTimeout(function () { l.classList.add('on'); }, 900 + k * 60); });
+      [cbx, fbx, lines].forEach(function (g) { g.forEach(function (b) { b.classList.remove('on'); }); });
+      locTimers.forEach(clearTimeout); locTimers = [];
+      var later = function (node, t) { locTimers.push(setTimeout(function () { node.classList.add('on'); }, t)); };
+      cbx.forEach(function (b, k) { later(b, 500 + k * 450); });
+      var t1 = 500 + cbx.length * 450 + 400;
+      lines.forEach(function (l, k) { later(l, t1 + k * 90); });
+      var t2 = t1 + lines.length * 90 + 300;
+      fbx.forEach(function (b, k) { later(b, t2 + k * 380); });
     } else if (i === 2) {
       var K = M.keyframe;
       if (!built[2]) {
@@ -585,7 +590,7 @@ function initStepper() {
   root.addEventListener('pointerdown', function () { userTook = true; clearTimeout(autoTimer); });
   function scheduleAuto() {
     if (REDUCED) return;
-    var wait = [9000, 7000, 8000][cur];
+    var wait = [14000, 13000, 9000][cur];
     if (cur >= 3 || userTook) return;
     autoTimer = setTimeout(function () { if (!userTook) { go(cur + 1); scheduleAuto(); } }, wait);
   }
