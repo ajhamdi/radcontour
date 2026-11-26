@@ -98,24 +98,6 @@ var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: r
 
 /* ------------------------------------------------------------- counters -- */
 
-function animateCount(node) {
-  var target = parseFloat(node.getAttribute('data-count'));
-  var dec = parseInt(node.getAttribute('data-dec') || '0', 10);
-  var fmtN = function (v) {
-    return dec ? v.toFixed(dec) : Math.round(v).toLocaleString('en-US');
-  };
-  if (REDUCED || target === 0) { node.textContent = fmtN(target); return; }
-  var t0 = null, dur = 1200;
-  function step(t) {
-    if (!t0) t0 = t;
-    var p = Math.min(1, (t - t0) / dur);
-    var e = 1 - Math.pow(1 - p, 3);
-    node.textContent = fmtN(target * e);
-    if (p < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
 /* ------------------------------------------------- hero background canvas -- */
 
 // A slowly turning stack of closed contours, the visual idea of the method (outlines on slices -> a volume).
@@ -868,7 +850,6 @@ function initGallery() {
 document.addEventListener('DOMContentLoaded', function () {
   heroCanvas();
   quickNav();
-  document.querySelectorAll('[data-count]').forEach(function (n) { onVisible(n, function () { animateCount(n); }, 0.5); });
   document.querySelectorAll('.img-compare:not(#v3d-cmp)').forEach(function (b) { initCompare(b, 50); });
   initRolls();
   document.querySelectorAll('.turntable').forEach(initTurntable);

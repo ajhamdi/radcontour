@@ -76,11 +76,6 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
   background: var(--media); box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
 }
 
-.hero-stats { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); background: rgba(248, 250, 252, 0.8); }
-.stat { padding: 1rem 0.5rem; text-align: center; border-right: 1px solid var(--line); }
-.stat:last-child { border-right: 0; }
-.stat-num { display: block; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.9rem; color: var(--accent-deep); font-variant-numeric: tabular-nums; }
-.stat-lab { display: block; font-size: 0.8rem; color: var(--muted); }
 
 /* --------------------------------------------------------- teaser, video -- */
 .teaser-lead { font-size: 1.2rem !important; line-height: 1.55; color: var(--ink-2) !important; margin-bottom: 1.5rem !important; }
@@ -395,8 +390,6 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
 }
 @media (max-width: 768px) {
   .hero-main .hero-body { padding-top: 3rem; }
-  .hero-stats { grid-template-columns: repeat(2, 1fr); }
-  .stat { border-bottom: 1px solid var(--line); }
   .v3d-stage { height: 340px; }
   .roll-body { grid-template-columns: 1fr; }
   .roll-scout { display: none; }
