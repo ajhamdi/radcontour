@@ -48,6 +48,39 @@ var ANAT_ROWS = [
   { name: 'RadContour', model: 'Sonnet 5.5', ours: 'main', v: [62.3, 84.1, 47.5, 49.0, 89.8, 66.5] }
 ];
 
+// Table 5 (wording): anatomy (10 prompts) and tumors (2 prompts), label / synonym / description.
+var WORDING = {
+  groups: ['Anatomy', 'Tumors'],
+  kinds: ['label', 'synonym', 'description'],
+  vox: [[91.6, 91.3, 65.9], [29.7, 28.0, 20.6]],
+  ours: [[78.3, 78.0, 78.2], [48.0, 72.8, 68.3]]
+};
+
+// Figure 6: 25 backbones on the same ten pelvic CT volumes (PENGWIN), unchanged pipeline.
+var BACKBONES = [
+  ['Fable 5.2', 'anthropic', 89.4], ['GPT-6.1 Terra', 'openai', 88.7], ['Opus 5.5', 'anthropic', 88.5],
+  ['Gemini 4 Carbon', 'google', 88.3], ['Gemini 4 Argon', 'google', 88.1], ['Sonnet 5.5', 'anthropic', 86.9],
+  ['Gemini 4 Hydrogen', 'google', 85.1], ['Haiku 5.5', 'anthropic', 82.5], ['Gemini 3.8 Flash', 'google', 81.2],
+  ['Opus 5', 'anthropic', 80.9], ['GPT-6 Luna', 'openai', 73.8], ['GPT-5.6 Luna', 'openai', 69.7],
+  ['Gemini 3.5 Flash', 'google', 67.0], ['Gemini 3.1 Pro', 'google', 61.4], ['GLM 5.3 Flash', 'zai', 51.7, true],
+  ['Qwen3.8 27B', 'alibaba', 41.9, true], ['Qwen3.5 397B', 'alibaba', 41.0, true], ['Sonnet 5', 'anthropic', 39.5],
+  ['Gemini 3.5 Flash-Lite', 'google', 34.7], ['Muse Glimmer 30B', 'meta', 33.0, true], ['Gemma 4 26B', 'google', 23.9, true],
+  ['Gemini 3.1 Flash-Lite', 'google', 11.6], ['Qwen3.5 9B', 'alibaba', 11.0, true], ['GLM 4.6V', 'zai', 8.0, true],
+  ['Haiku 4.5', 'anthropic', 5.2]
+];
+var FAMILIES = [['anthropic', 'Anthropic'], ['openai', 'OpenAI'], ['google', 'Google'], ['alibaba', 'Alibaba'],
+  ['zai', 'Z.ai'], ['meta', 'Meta']];
+var GENERATIONS = [['Haiku 4.5', 'Haiku 5.5'], ['Sonnet 5', 'Sonnet 5.5'], ['Gemini 3.1 Flash-Lite', 'Gemini 3.5 Flash-Lite']];
+
+/* --------------------------------------------------------------- helpers -- */
+
+function el(tag, cls, text) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined && text !== null) e.textContent = text;
+  return e;
+}
+
 function fmt(v) { return v === null || v === undefined ? '\u2013' : v.toFixed(1); }
 function pad3(i) { return ('00' + i).slice(-3); }
 function onVisible(node, fn, threshold) {
@@ -681,9 +714,6 @@ function renderBackbones() {
 
   var overlay = el('div', 'bk-overlay');
   for (var t = 0; t <= MAX; t += 10) { var g = el('div', 'bk-grid'); g.style.left = pct(t); overlay.appendChild(g); }
-  var ref = el('div', 'bk-ref'); ref.style.left = pct(BK_REF.v);
-  ref.appendChild(el('span', 'bk-ref-tag', BK_REF.label + ' ' + fmt(BK_REF.v)));
-  overlay.appendChild(ref);
   host.appendChild(overlay);
   var rows = [], hl = null;
   BACKBONES.forEach(function (b) {
