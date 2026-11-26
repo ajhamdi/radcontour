@@ -158,7 +158,7 @@ function heroCanvas() {
     if (!running) return;
     var t = ts / 1000;
     ctx.clearRect(0, 0, W, H);
-    var cx = W * 0.2, cy = H * 0.52, R = Math.min(W, H) * 0.28;
+    var cx = W * 0.06, cy = H * 0.55, R = Math.min(W, H) * 0.3;
     var rot = t * 0.25, tilt = 0.42;
     for (var i = 0; i < N; i++) {
       var z = i / (N - 1);
@@ -171,7 +171,7 @@ function heroCanvas() {
         if (j === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
       }
       var glow = 0.5 + 0.5 * Math.sin(t * 1.2 - z * 7);
-      ctx.strokeStyle = 'rgba(94,234,212,' + (0.08 + 0.22 * glow).toFixed(3) + ')';
+      ctx.strokeStyle = 'rgba(13,148,136,' + (0.04 + 0.12 * glow).toFixed(3) + ')';
       ctx.lineWidth = 1.1;
       ctx.stroke();
     }
@@ -247,7 +247,6 @@ function initRoll(host, meta) {
     sline.style.left = (meta.scout.x0 * 100) + '%';
     sline.style.right = ((1 - meta.scout.x1) * 100) + '%';
     scout.appendChild(sline);
-    scout.appendChild(el('span', null, 'slice position'));
     body.appendChild(scout);
   } else {
     body.style.gridTemplateColumns = '1fr';
@@ -294,7 +293,7 @@ function initRoll(host, meta) {
     imgs.forEach(function (pi) { pi[1].src = meta.dir + pi[0] + '_' + pad3(idx) + '.jpg'; });
     range.value = idx;
     if (sline && meta.scout.y) sline.style.top = (meta.scout.y[idx] * 100) + '%';
-    pos.textContent = 'slice ' + (idx + 1) + ' / ' + n + (meta.mm ? '  \u00b7  ' + meta.mm[idx].toFixed(0) + ' mm' : '');
+    pos.textContent = (idx + 1) + ' / ' + n;
   }
   function setPlay(p) {
     playing = p;
@@ -366,7 +365,10 @@ function initTurntable(host) {
     if (visible) { if (!userPaused && !REDUCED) video.play().catch(function () {}); requestAnimationFrame(draw); }
     else video.pause();
   }).observe(host);
-  video.addEventListener('loadeddata', function () { requestAnimationFrame(draw); });
+  // draw directly on video events too, so the first frame shows even when animation frames are throttled
+  function drawOnce() { var v = visible; visible = false; draw(); visible = v; }
+  video.addEventListener('loadeddata', drawOnce);
+  video.addEventListener('timeupdate', drawOnce);
 
   function setPlayIcon() { play.innerHTML = video.paused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>'; }
   video.addEventListener('play', setPlayIcon); video.addEventListener('pause', setPlayIcon);
@@ -549,13 +551,6 @@ function initStepper() {
   function retrace() {
     var K = M.keyframe, crop = document.getElementById('st-kfcrop');
     var path = crop.querySelector('.trace'), dots = crop.querySelectorAll('.tp');
-    var w = K.crop_w, h = K.crop_h;
-    var loop = { present: true, loops: K.loops.map(function (lp) {
-      return { role: 'outer', points: lp.points.map(function (p) { return [Math.round(p[0] * w), Math.round(p[1] * h)]; }) };
-    }) };
-    var txt = JSON.stringify(loop).replace(/\],\[/g, '], [');
-    var node = document.getElementById('st-loop');
-    typeTokens(node, [[txt, '']], 9);
     dots.forEach(function (d) { d.setAttribute('opacity', '0'); });
     dots.forEach(function (d, k) { setTimeout(function () { d.setAttribute('opacity', '1'); }, 120 + k * 70); });
     if (path) {
@@ -572,12 +567,11 @@ function initStepper() {
   if (asmVideo) {
     asmVideo.addEventListener('timeupdate', function () {
       var f = Math.round(asmVideo.currentTime * 30);
-      asmRange.value = f; asmVal.textContent = Math.round(100 * f / 359) + '%';
+      asmRange.value = f;
     });
     asmVideo.addEventListener('ended', function () { asmVideo.pause(); });
     asmRange.addEventListener('input', function () {
       asmVideo.pause(); asmVideo.currentTime = parseInt(asmRange.value, 10) / 30;
-      asmVal.textContent = Math.round(100 * asmRange.value / 359) + '%';
     });
   }
 
@@ -633,7 +627,6 @@ function renderHChart(prefix, cols, rows) {
     if (r.ours) { nm.appendChild(document.createTextNode(r.name + ' ')); nm.appendChild(el('small', null, '(' + r.model + ')')); }
     else {
       nm.appendChild(document.createTextNode(r.name));
-      if (r.net) { var ic = el('i', 'fas fa-cube cube-ico'); ic.title = '3D segmentation network'; nm.appendChild(ic); }
     }
     var tr = el('div', 'hb-track');
     var bar = el('div', 'hb-bar');
@@ -660,6 +653,7 @@ function renderHChart(prefix, cols, rows) {
     order.forEach(function (ri, rank) {
       var e = rowEls[ri], v = vals[ri];
       e.row.style.transform = 'translateY(' + ((rank - ri) * rowH) + 'px)';
+      e.row.style.opacity = v === null ? 0 : 1;
       var w = started && v !== null ? v : 0;
       e.bar.style.width = w + '%';
       e.val.style.left = w + '%';
@@ -710,7 +704,7 @@ function renderWording() {
   var groups = el('div', 'wc-groups');
   WORDING.groups.forEach(function (g, gi) {
     var box = el('div');
-    box.appendChild(el('div', 'wc-title', g + (gi === 0 ? ' (10 prompts)' : ' (2 prompts)')));
+    box.appendChild(el('div', 'wc-title', g));
     var plot = el('div', 'wc-plot'), xl = el('div', 'wc-xl');
     WORDING.kinds.forEach(function (k, ki) {
       var cl = el('div', 'wc-cluster');
@@ -746,15 +740,6 @@ function renderBackbones() {
     b.addEventListener('click', function () { off[f[0]] = !off[f[0]]; b.classList.toggle('is-off', !!off[f[0]]); refresh(); });
     legend.appendChild(b);
   });
-  var gen = el('div', 'bk-gen');
-  GENERATIONS.forEach(function (g) {
-    var s = el('span', null, g[0] + ' \u2192 ' + g[1]);
-    s.addEventListener('mouseenter', function () { hl = g; refresh(); });
-    s.addEventListener('mouseleave', function () { hl = null; refresh(); });
-    s.addEventListener('click', function () { hl = hl === g ? null : g; refresh(); });
-    gen.appendChild(s);
-  });
-  legend.parentNode.insertBefore(gen, legend.nextSibling);
 
   var overlay = el('div', 'bk-overlay');
   for (var t = 0; t <= MAX; t += 10) { var g = el('div', 'bk-grid'); g.style.left = pct(t); overlay.appendChild(g); }
@@ -769,7 +754,6 @@ function renderBackbones() {
     var logo = el('div', 'bk-logo'), li = document.createElement('img');
     li.src = 'static/assets/logos/' + b[1] + '.png'; li.alt = ''; logo.appendChild(li);
     var lab = el('div', 'bk-label', b[0]);
-    if (b[3]) { var o = el('i', 'fas fa-lock-open open'); o.title = 'open weights'; lab.appendChild(o); }
     var track = el('div', 'bk-track'), bar = el('div', 'bk-bar bk-fam-' + b[1]), val = el('span', 'bk-val', fmt(b[2]));
     bar.setAttribute('data-w', b[2] / MAX * 100); val.style.left = '0%';
     track.appendChild(bar); track.appendChild(val);
@@ -781,7 +765,7 @@ function renderBackbones() {
   for (var a = 0; a <= MAX; a += 10) { var tk = el('span', null, String(a)); tk.style.left = pct(a); ticks.appendChild(tk); }
   axis.appendChild(el('div', 'bk-logo')); axis.appendChild(el('div', 'bk-label')); axis.appendChild(ticks);
   host.appendChild(axis);
-  host.appendChild(el('div', 'bk-axis-title', 'Dice (\u00d7100), PENGWIN, ten volumes'));
+  host.appendChild(el('div', 'bk-axis-title', 'Dice'));
   function refresh() {
     rows.forEach(function (r) {
       var dim = !!off[r.b[1]] || (hl && hl.indexOf(r.b[0]) < 0);
@@ -826,15 +810,14 @@ function initGallery() {
     view.innerHTML = '';
     var head = el('div', 'gal-head');
     head.appendChild(el('h4', null, it.title));
-    head.appendChild(el('span', 'mod-' + it.mod + ' bchip', it.mod));
-    head.appendChild(el('span', 'q', '\u201c' + it.prompt + '\u201d'));
-    head.appendChild(el('span', 'chip', 'RadContour (' + it.model + ') Dice ' + fmt(it.dice.ours)));
+        head.appendChild(el('span', 'q', '\u201c' + it.prompt + '\u201d'));
+    head.appendChild(el('span', 'chip', 'Dice ' + fmt(it.dice.ours)));
     view.appendChild(head);
     var grid = el('div', 'gal-grid');
 
     // 2D: compare slider; the left side can show the image, the ground truth or the baseline
     var left = el('div');
-    var sub = el('div', 'gal-sub'); sub.appendChild(el('span', null, 'Axial slice'));
+    var sub = el('div', 'gal-sub');
     var opts = [['gt', 'Ground truth'], ['img', 'Image']];
     if (it.files.voxtell) opts.push(['voxtell', 'VoxTell']);
     var seg = el('div', 'seg seg-light gal-toggle');
@@ -875,15 +858,12 @@ function initGallery() {
       });
       left.appendChild(s2);
     }
-    left.appendChild(el('p', 'gal-2d-note', 'Hover or drag to sweep. Right of the divider: RadContour.'));
     grid.appendChild(left);
     initCompare(box, 50);
 
     // 3D
     var right = el('div');
-    var sub3 = el('div', 'gal-sub'); sub3.appendChild(el('span', null, it.group === 'lesion' ? '3D surfaces, colored by distance to the ground truth' : '3D surfaces'));
-    right.appendChild(sub3);
-    var g3 = el('div', 'gal-3d ' + (it.files.voxtell3d ? 'c3' : 'c2'));
+        var g3 = el('div', 'gal-3d ' + (it.files.voxtell3d ? 'c3' : 'c2'));
     var f3 = [['gt3d', 'Ground truth', null], ['ours3d', 'RadContour', it.dice.ours]];
     if (it.files.voxtell3d) f3.push(['voxtell3d', 'VoxTell', it.dice.voxtell]);
     f3.forEach(function (f) {

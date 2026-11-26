@@ -149,7 +149,7 @@ function init() {
     scene.add(S.root);
     ui.hidden = new Set();
     const d = S.data;
-    $('v3d-title').textContent = `${d.title} · ${d.desc}`;
+    $('v3d-title').textContent = d.title;
     $('v3d-dice').textContent = d.dice_total ? `Dice ${d.dice_total.toFixed(1)}` : '';
 
     // mode buttons: GT / compare / overlay need ground truth
@@ -267,7 +267,7 @@ function init() {
     const fade = Math.max(0, Math.min(1, (a - 0.55) / 0.4));
     for (const m of S.meshes) { m.material.opacity = fade; m.visible = fade > 0.01; m.material.depthWrite = fade > 0.95; }
     S.rings.children.forEach((k) => { k.material.opacity = 1 - 0.7 * fade; });
-    $('v3d-asm-val').textContent = a < 0.55 ? `${kids.filter((k) => k.visible).length} outlines` : `surface ${Math.round(fade * 100)}%`;
+    $('v3d-asm-val').textContent = a < 0.55 ? `${kids.filter((k) => k.visible).length} outlines` : 'surface';
   }
 
   // --------------------------------------------------------------- legend --

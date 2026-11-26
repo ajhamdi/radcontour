@@ -4,13 +4,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="description"
-    content="RadContour: a training-free pipeline that turns a frozen multimodal LLM into a text-prompted 3D segmenter of CT, MRI and PET volumes. The MLLM plans, localizes and traces outlines on a few keyframes; geometry assembles the 3D mask.">
+    content="RadContour: a frozen multimodal LLM segments 3D CT, MRI and PET volumes from text by contouring a few slices, as radiologists do. No training, no segmentation network.">
   <meta name="keywords"
-    content="RadContour, 3D medical image segmentation, text-prompted segmentation, multimodal LLM, MLLM, zero-shot, training-free, CT, MRI, PET, VoxTell, keyframe contouring">
+    content="RadContour, 3D medical image segmentation, text-prompted segmentation, multimodal LLM, MLLM, zero-shot, training-free, CT, MRI, PET">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta property="og:title" content="RadContour: Can Frozen Multimodal LLMs Segment 3D Medical Images?">
   <meta property="og:description"
-    content="A frozen, general-purpose MLLM segments 3D CT, MRI and PET volumes from text by contouring a few slices, as radiologists do. No training, no segmentation network.">
+    content="A frozen, general-purpose MLLM segments 3D CT, MRI and PET volumes from text. No training, no segmentation network.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="static/assets/figs/teaser.png">
   <title>RadContour: Can Frozen Multimodal LLMs Segment 3D Medical Images?</title>
@@ -21,10 +21,10 @@
 
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet" href="./static/css/index.css?v=20261126">
+  <link rel="stylesheet" href="./static/css/index.css?v=20261126b">
 
   <script defer src="./static/js/fontawesome.all.min.js"></script>
-  <script defer src="./static/js/index.js?v=20261126"></script>
+  <script defer src="./static/js/index.js?v=20261126b"></script>
   <script type="importmap">
     {
       "imports": {
@@ -33,34 +33,30 @@
       }
     }
   </script>
-  <script type="module" src="./static/js/viewer3d.js?v=20261126"></script>
+  <script type="module" src="./static/js/viewer3d.js?v=20261126b"></script>
 </head>
 
 <body>
 
-  <!-- Sticky section navigation (appears after the hero) -->
   <nav class="quicknav" id="quicknav" aria-label="Sections">
     <a href="#top" class="qn-brand"><span class="qn-dot"></span>RadContour</a>
     <div class="qn-links">
       <a href="#explore3d">3D</a>
-      <a href="#naive">Why 3D</a>
       <a href="#method">Method</a>
       <a href="#results">Results</a>
       <a href="#gallery">Gallery</a>
-      <a href="#wording">Prompts</a>
       <a href="#backbones">Backbones</a>
       <a href="#BibTeX">BibTeX</a>
     </div>
   </nav>
 
-  <!-- Hero / Title -->
-  <section class="hero hero-dark" id="top">
+  <!-- Hero -->
+  <section class="hero hero-main" id="top">
     <canvas id="hero-canvas" aria-hidden="true"></canvas>
     <div class="hero-body">
       <div class="container is-max-widescreen">
         <div class="columns is-vcentered">
-          <div class="column is-7 hero-text">
-            <div class="hero-kicker"><i class="fas fa-cube"></i> Zero-shot 3D segmentation &middot; CT &middot; MRI &middot; PET</div>
+          <div class="column is-7">
             <h1 class="title is-1 publication-title">
               <span class="brand">RadContour</span>
               <span class="title-sub">Can Frozen Multimodal LLMs Segment 3D Medical Images?</span>
@@ -70,87 +66,52 @@
               <span class="author-sep">&middot;</span>
               <span class="author-block"><a href="https://carloshinojosa.me/">Carlos Hinojosa</a></span>
             </div>
-            <div class="is-size-6 publication-affil">
-              King Abdullah University of Science and Technology (KAUST)
-            </div>
-
+            <div class="is-size-6 publication-affil">King Abdullah University of Science and Technology (KAUST)</div>
             <div class="publication-links">
-              <span class="link-block">
-                <a href="#" class="external-link button is-normal is-rounded is-light-glass" title="Paper link coming soon">
-                  <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Paper</span>
-                </a>
-              </span>
-              <span class="link-block">
-                <a href="#" class="external-link button is-normal is-rounded is-light-glass" title="Supplementary material, coming soon">
-                  <span class="icon"><i class="fas fa-file-medical"></i></span><span>Supplement</span>
-                </a>
-              </span>
-              <span class="link-block">
-                <a href="#" class="external-link button is-normal is-rounded is-light-glass" title="Code release coming soon">
-                  <span class="icon"><i class="fab fa-github"></i></span><span>Code</span>
-                </a>
-              </span>
-              <span class="link-block">
-                <a href="#video" class="external-link button is-normal is-rounded is-light-glass">
-                  <span class="icon"><i class="fas fa-play-circle"></i></span><span>Video</span>
-                </a>
-              </span>
-              <span class="link-block">
-                <a href="#explore3d" class="external-link button is-normal is-rounded is-accent">
-                  <span class="icon"><i class="fas fa-cube"></i></span><span>Explore in 3D</span>
-                </a>
-              </span>
+              <span class="link-block"><a href="#" class="button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Paper</span></a></span>
+              <span class="link-block"><a href="#" class="button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-medical"></i></span><span>Supplement</span></a></span>
+              <span class="link-block"><a href="#" class="button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span><span>Code</span></a></span>
+              <span class="link-block"><a href="#video" class="button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-play-circle"></i></span><span>Video</span></a></span>
+              <span class="link-block"><a href="#explore3d" class="button is-normal is-rounded is-accent">
+                  <span class="icon"><i class="fas fa-cube"></i></span><span>Explore in 3D</span></a></span>
             </div>
           </div>
           <div class="column is-5">
-            <figure class="hero-visual">
-              <video id="hero-video" src="static/assets/video/spleen_assembly.mp4" poster="static/assets/video/spleen_assembly_poster.jpg" autoplay muted loop playsinline
-                preload="auto" aria-label="Keyframe outlines traced by the MLLM stack up and are assembled into a 3D spleen"></video>
-              <figcaption>35 outlines traced by the MLLM on keyframes <i class="fas fa-long-arrow-alt-right"></i> one 3D spleen (Dice 94.3)</figcaption>
-            </figure>
+            <video id="hero-video" class="hero-clip" src="static/assets/video/spleen_assembly.mp4"
+              poster="static/assets/video/spleen_assembly_poster.jpg" autoplay muted loop playsinline preload="auto"
+              aria-label="Outlines traced on keyframes assemble into a 3D spleen"></video>
           </div>
         </div>
       </div>
     </div>
     <div class="hero-stats">
-      <div class="stat"><span class="stat-num" data-count="0">0</span><span class="stat-lab">training steps</span></div>
-      <div class="stat"><span class="stat-num" data-count="17">17</span><span class="stat-lab">public benchmarks</span></div>
+      <div class="stat"><span class="stat-num" data-count="0">0</span><span class="stat-lab">training</span></div>
+      <div class="stat"><span class="stat-num" data-count="17">17</span><span class="stat-lab">benchmarks</span></div>
       <div class="stat"><span class="stat-num" data-count="923">923</span><span class="stat-lab">CT, MRI, PET volumes</span></div>
       <div class="stat"><span class="stat-num" data-count="25">25</span><span class="stat-lab">backbone MLLMs</span></div>
-      <div class="stat"><span class="stat-num" data-count="58.7" data-dec="1">58.7</span><span class="stat-lab">mean Dice on 9 lesion sets<br>(trained SOTA 58.4)</span></div>
     </div>
   </section>
 
   <!-- Teaser -->
-  <section class="hero teaser">
+  <section class="section teaser">
     <div class="container is-max-desktop">
-      <div class="hero-body">
-        <h2 class="subtitle has-text-centered teaser-lead">
-          <b>RadContour</b> turns a frozen, general-purpose multimodal LLM into a <b>text-prompted 3D segmenter</b>.
-          The MLLM is the <em>only</em> vision component: it plans the target from free text, localizes it in 3D from
-          coarse to fine, and draws closed outlines on a few keyframes, much as radiologists contour a lesion.
-          Deterministic geometry assembles the outlines into a 3D mask.
-        </h2>
-        <img class="figure-img" src="static/assets/figs/teaser.png"
-          alt="RadContour teaser: MRI heart, PET breast cancer and MRI bladder cancer masks from text prompts, and the pipeline from 3D volume and prompt through a frozen MLLM to boxes, outlines and 3D masks" width="100%">
-        <p class="has-text-centered caption">
-          One frozen MLLM, no fine-tuning and no segmentation network: free-text prompts on MRI, PET and CT become 3D
-          masks through boxes, outlines and 3D assembly.
-        </p>
-      </div>
+      <h2 class="subtitle has-text-centered teaser-lead">
+        A frozen multimodal LLM segments 3D medical volumes from text by <b>contouring a few slices</b>, as
+        radiologists do. <b>No training, no segmentation network.</b>
+      </h2>
+      <img class="figure-img teaser-img" src="static/assets/figs/teaser.png"
+        alt="Text prompts on MRI, PET and CT become 3D masks through a frozen MLLM, boxes, outlines and 3D assembly">
     </div>
   </section>
 
   <!-- Video -->
   <section class="section alt-section" id="video">
     <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Overview Video</h2>
-          <p class="subtitle is-6">The task, the method on a real case, slice rolls with 3D renders, and the main
-            results in under three minutes.</p>
-        </div>
-      </div>
+      <h2 class="title is-3 has-text-centered">Video</h2>
       <div class="video-frame">
         <video controls preload="metadata" poster="static/assets/video/promo_poster.jpg" playsinline>
           <source src="static/assets/video/radcontour_promo.mp4" type="video/mp4">
@@ -179,19 +140,17 @@
             </p>
             <p>
               We evaluate RadContour zero-shot on 17 public CT, MRI, and PET benchmarks spanning 923 volumes. On nine
-              tumor and lesion benchmarks, RadContour <b>matches the mean Dice of the trained state of the art</b> on
+              tumor and lesion benchmarks, RadContour matches the mean Dice of the trained state of the art on
               identical cases (58.7 vs. 58.4) and more than doubles that of every other trained text-promptable model.
-              On soft-tissue sarcoma, it nearly doubles the Dice of the best trained model (<b>76.5 vs. 39.3</b>).
-              Across 25 backbone MLLMs, accuracy follows backbone strength with an unchanged pipeline.
+              On soft-tissue sarcoma, it nearly doubles the Dice of the best trained model (76.5 vs. 39.3). Across 25
+              backbone MLLMs, accuracy follows backbone strength with an unchanged pipeline.
             </p>
           </div>
           <div class="keyword-tags">
             <span class="tag is-medium is-info is-light">Training-Free</span>
             <span class="tag is-medium is-info is-light">3D Medical Segmentation</span>
-            <span class="tag is-medium is-info is-light">Text-Prompted</span>
             <span class="tag is-medium is-info is-light">Multimodal LLMs</span>
             <span class="tag is-medium is-info is-light">CT &middot; MRI &middot; PET</span>
-            <span class="tag is-medium is-info is-light">Keyframe Contouring</span>
             <span class="tag is-medium is-info is-light">Zero-Shot</span>
           </div>
         </div>
@@ -199,16 +158,13 @@
     </div>
   </section>
 
-  <!-- Interactive 3D explorer -->
-  <section class="section dark-section" id="explore3d">
+  <!-- Interactive 3D -->
+  <section class="section alt-section" id="explore3d">
     <div class="container is-max-widescreen">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Explore the 3D Masks</h2>
-          <p class="subtitle is-6">Real masks of RadContour (Sonnet&nbsp;5.5) and the ground truth, as surfaces. Drag
-            to rotate, scroll to zoom. Use <b>Compare</b> to sweep a divider through the 3D scene, and the
-            <b>slice</b> slider to move a CT plane through the model while the 2D slice follows.</p>
-        </div>
+      <div class="has-text-centered">
+        <h2 class="title is-3">Explore in 3D</h2>
+        <p class="subtitle is-6">Drag to rotate. <b>Compare</b> sweeps a divider through the scene; the slice slider moves a
+          CT plane through it.</p>
       </div>
 
       <div class="v3d" id="v3d">
@@ -229,22 +185,15 @@
               <span class="v3d-split-lab v3d-split-right">RadContour</span>
             </div>
             <div class="v3d-tip" id="v3d-tip" hidden></div>
-            <div class="v3d-loading" id="v3d-loading"><span class="spinner"></span>Loading 3D scene</div>
-            <div class="v3d-fallback" id="v3d-fallback" hidden>
-              The interactive viewer needs WebGL and a local web server (<code>python -m http.server</code>).
-              The rotating comparisons below work without it.
-            </div>
-            <div class="v3d-hud">
-              <span id="v3d-title">Abdomen CT</span>
-              <span class="v3d-dice" id="v3d-dice"></span>
-            </div>
+            <div class="v3d-loading" id="v3d-loading"><span class="spinner"></span>Loading</div>
+            <div class="v3d-fallback" id="v3d-fallback" hidden>This viewer needs WebGL.</div>
+            <div class="v3d-hud"><span id="v3d-title">Abdomen CT</span><span class="v3d-dice" id="v3d-dice"></span></div>
             <button class="v3d-iconbtn" id="v3d-spin" title="Auto-rotate"><i class="fas fa-sync-alt"></i></button>
             <button class="v3d-iconbtn v3d-reset" id="v3d-reset" title="Reset view"><i class="fas fa-crosshairs"></i></button>
           </div>
 
           <aside class="v3d-side">
             <div class="v3d-group" id="v3d-modes">
-              <div class="v3d-label">Show</div>
               <div class="seg">
                 <button data-mode="gt">Ground truth</button>
                 <button data-mode="ours" class="is-active">RadContour</button>
@@ -252,119 +201,64 @@
                 <button data-mode="overlay">Overlay</button>
               </div>
             </div>
-
             <div class="v3d-group" id="v3d-assembly" hidden>
-              <div class="v3d-label">Assembly <span class="v3d-val" id="v3d-asm-val"></span></div>
+              <div class="v3d-label">Outlines &rarr; surface <span class="v3d-val" id="v3d-asm-val"></span></div>
               <input type="range" id="v3d-asm" min="0" max="100" value="100" class="range">
-              <p class="v3d-note">Drag left to see the 35 closed outlines the MLLM traced on keyframes. Geometry
-                blends their distance maps into the surface.</p>
             </div>
-
             <div class="v3d-group" id="v3d-slicegrp">
-              <div class="v3d-label">Slice plane <span class="v3d-val" id="v3d-slice-val"></span></div>
+              <div class="v3d-label">Slice <span class="v3d-val" id="v3d-slice-val"></span></div>
               <input type="range" id="v3d-slice" min="0" max="71" value="30" class="range">
-              <label class="v3d-check"><input type="checkbox" id="v3d-cut"> cut the model at the plane</label>
-              <label class="v3d-check"><input type="checkbox" id="v3d-plane" checked> show CT plane</label>
+              <label class="v3d-check"><input type="checkbox" id="v3d-cut"> cut at slice</label>
+              <label class="v3d-check"><input type="checkbox" id="v3d-plane" checked> show slice</label>
             </div>
-
             <div class="v3d-group v3d-legend-wrap">
-              <div class="v3d-label">Structures <span class="v3d-hint">click to hide &middot; Dice of ours</span></div>
+              <div class="v3d-label">Structures <span class="v3d-hint">Dice</span></div>
               <div class="v3d-legend" id="v3d-legend"></div>
             </div>
           </aside>
         </div>
 
-        <!-- 2D slice synchronized with the plane -->
         <div class="v3d-slice2d" id="v3d-slice2d">
-          <div class="img-compare ic-dark" id="v3d-cmp">
+          <div class="img-compare" id="v3d-cmp">
             <img class="ic-under" id="v3d-img-ours" alt="RadContour on the current slice">
             <div class="ic-over"><img id="v3d-img-gt" alt="Ground truth on the current slice"></div>
             <div class="ic-handle"><span class="ic-arrow-l"></span><span class="ic-arrow-r"></span></div>
             <span class="ic-label ic-label-left">Ground truth</span>
             <span class="ic-label ic-label-right">RadContour</span>
           </div>
-          <div class="v3d-slice-info">
-            <h4>The same slice in 2D</h4>
-            <p>The CT plane in the 3D view and this axial slice move together. Scroll on the image or drag the slice
-              slider to step through the volume; hover to sweep between the ground truth and RadContour.</p>
-            <div class="v3d-input-wrap">
-              <img id="v3d-img-input" alt="Input slice">
-              <span>input slice</span>
-            </div>
-          </div>
+          <img id="v3d-img-input" class="v3d-input" alt="Input slice">
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Turntables: slider over a rotating 3D render -->
-  <section class="section dark-section dark-section-2" id="turntables">
-    <div class="container is-max-widescreen">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Spin and Compare</h2>
-          <p class="subtitle is-6">Rendered turntables of the ground truth and RadContour. Drag the divider to sweep
-            between them while the model rotates; drag anywhere else to turn it yourself.</p>
-        </div>
-      </div>
       <div class="columns tt-row">
         <div class="column is-one-third">
-          <div class="turntable" data-src="static/assets/video/turntable_btcv.mp4" data-split="0.5"></div>
-          <p class="tt-cap"><b>Abdomen CT</b> &middot; 13 organs &middot; BTCV &middot; <span class="chip">Dice 74.2</span></p>
+          <div class="turntable" data-src="static/assets/video/turntable_btcv.mp4"></div>
+          <p class="tt-cap">Abdomen CT <span class="chip">Dice 74.2</span></p>
         </div>
         <div class="column is-one-third">
-          <div class="turntable" data-src="static/assets/video/turntable_hvsmr.mp4" data-split="0.5"></div>
-          <p class="tt-cap"><b>Heart MRI</b> &middot; 8 structures &middot; HVSMR-2.0 &middot; <span class="chip">Dice 75.8</span></p>
+          <div class="turntable" data-src="static/assets/video/turntable_hvsmr.mp4"></div>
+          <p class="tt-cap">Heart MRI <span class="chip">Dice 75.8</span></p>
         </div>
         <div class="column is-one-third">
-          <div class="turntable" data-src="static/assets/video/turntable_pengwin.mp4" data-split="0.5"></div>
-          <p class="tt-cap"><b>Pelvis CT</b> &middot; 3 bones &middot; PENGWIN &middot; <span class="chip">Dice 93.9</span></p>
+          <div class="turntable" data-src="static/assets/video/turntable_pengwin.mp4"></div>
+          <p class="tt-cap">Pelvis CT <span class="chip">Dice 93.9</span></p>
         </div>
       </div>
-      <p class="has-text-centered caption caption-dark">Left of the divider: ground truth. Right: RadContour with
-        Sonnet&nbsp;5.5, from the class names alone.</p>
     </div>
   </section>
 
-  <!-- Why not slice by slice? -->
+  <!-- Slice by slice -->
   <section class="section" id="naive">
     <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Why Not Segment Slice by Slice?</h2>
-          <p class="subtitle is-6">A 2D MLLM segmenter (LLMSeg) run on every axial slice sees each slice alone. It
-            detects bone where there is none, mistakes the femoral heads for hip bone, and its outlines jump between
-            slices. RadContour, with the <em>same</em> MLLM (Haiku&nbsp;5.5), decides what and where first, then
-            traces a few keyframes.</p>
-        </div>
+      <div class="has-text-centered">
+        <h2 class="title is-3">Why Not Segment Slice by Slice?</h2>
+        <p class="subtitle is-6">Same MLLM, two ways: a 2D segmenter on every slice, or RadContour.</p>
       </div>
-
-      <div class="roll" id="roll-naive" data-roll="naive" data-labels="Ground truth|2D MLLM on every slice|RadContour (same MLLM)"
-        data-fps="12">
-      </div>
-
-      <div class="columns is-centered naive-numbers">
-        <div class="column is-5">
-          <div class="vs-card">
-            <div class="vs-col">
-              <div class="vs-name">Slice by slice</div>
-              <div class="vs-big muted"><span data-count="54.8" data-dec="1">54.8</span><small> Dice</small></div>
-              <div class="vs-small"><span data-count="4182">4,182</span> MLLM calls / volume</div>
-            </div>
-            <div class="vs-mid">vs</div>
-            <div class="vs-col">
-              <div class="vs-name accent">RadContour</div>
-              <div class="vs-big"><span data-count="82.5" data-dec="1">82.5</span><small> Dice</small></div>
-              <div class="vs-small"><span data-count="34">34</span> MLLM calls / volume</div>
-            </div>
-          </div>
-        </div>
-        <div class="column is-7">
-          <img class="figure-img" src="static/assets/figs/llmseg_slice_col.png"
-            alt="Coronal views of the ground truth, LLMSeg run on every slice, and RadContour on a pelvic CT">
-          <p class="caption">Ten pelvic CT volumes (PENGWIN), same MLLM for both. Coronal views of one volume:
-            ground truth, the 2D MLLM on every slice, RadContour.</p>
-        </div>
+      <div class="roll" data-roll="naive" data-labels="Ground truth|2D MLLM on every slice|RadContour" data-fps="12"></div>
+      <div class="vs-strip">
+        <div><span class="vs-big muted">54.8</span><span class="vs-lab">Dice, 4,182 calls</span></div>
+        <div class="vs-mid">vs</div>
+        <div><span class="vs-big">82.5</span><span class="vs-lab">Dice, 34 calls</span></div>
       </div>
     </div>
   </section>
@@ -372,18 +266,9 @@
   <!-- Method -->
   <section class="section alt-section" id="method">
     <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">How It Works</h2>
-          <p class="subtitle is-6">Four stages, with the MLLM as the only vision component. It never sees voxels or
-            features: each call gets rendered 2D views with captions and returns JSON (boxes or point lists).
-            Step through the real records of one case below (BTCV, prompt &ldquo;spleen&rdquo;).</p>
-        </div>
-      </div>
-      <div class="content has-text-centered">
-        <img class="figure-img zoomable" src="static/assets/figs/pipeline.png"
-          alt="RadContour pipeline: plan, coarse-to-fine localization, keyframe contouring, 3D assembly" width="100%">
-      </div>
+      <h2 class="title is-3 has-text-centered">How It Works</h2>
+      <img class="figure-img zoomable" src="static/assets/figs/pipeline.png"
+        alt="RadContour pipeline: plan, coarse-to-fine localization, keyframe contouring, 3D assembly" width="100%">
 
       <div class="stepper" id="stepper">
         <div class="stepper-tabs">
@@ -394,129 +279,50 @@
           <div class="st-progress"><span id="st-bar"></span></div>
         </div>
 
-        <!-- 1 plan -->
         <div class="st-pane is-active" data-step="0">
+          <p class="st-text">The MLLM reads the prompt and three overview slices, and writes a plan.</p>
           <div class="columns">
             <div class="column is-6">
-              <p class="st-text"><b>Planning the target from text.</b> The MLLM receives the prompt, the modality and
-                three orthogonal overview slices, and returns an explicit plan: display window, appearance, location,
-                size, confounders, multiplicity and shape class. The plan sets the sampling density of the later
-                stages and is quoted in every later prompt.</p>
-              <div class="prompt-pill"><i class="fas fa-comment-medical"></i> &ldquo;spleen&rdquo; <span>CT</span></div>
+              <div class="prompt-pill"><i class="fas fa-comment-medical"></i> &ldquo;spleen&rdquo;</div>
               <div class="st-ov" id="st-ov"></div>
             </div>
             <div class="column is-6">
               <div class="json-card">
-                <div class="json-head"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-                  MLLM reply &middot; plan.json</div>
+                <div class="json-head"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>plan</div>
                 <pre id="st-plan" class="json-body"></pre>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 2 localize -->
         <div class="st-pane" data-step="1">
-          <p class="st-text"><b>Coarse-to-fine localization.</b> A <em>coarse</em> call sees sparse axial views (plus
-            coronal and sagittal context) and boxes the target wherever it appears, which gives an initial extent.
-            A <em>fine</em> call then sees dense slices over that extent and returns one box per slice. These boxes fix
-            the extent and the in-plane region on every slice.</p>
+          <p class="st-text">It boxes the target on sparse views, then on dense slices, which fixes its 3D extent.</p>
           <div class="loc-wrap">
-            <div class="loc-scout">
-              <div class="loc-scout-img" id="st-scout"></div>
-              <span class="loc-cap">coronal context &middot; fine slices</span>
-            </div>
+            <div class="loc-scout"><div class="loc-scout-img" id="st-scout"></div></div>
             <div class="loc-grids">
-              <div class="loc-label">Coarse call: sparse views, boxes where the spleen appears</div>
+              <div class="loc-label">coarse</div>
               <div class="loc-strip" id="st-coarse"></div>
-              <div class="loc-label">Fine call: dense slices over the extent, one box each</div>
+              <div class="loc-label">fine</div>
               <div class="loc-strip" id="st-fine"></div>
             </div>
           </div>
         </div>
 
-        <!-- 3 contour -->
         <div class="st-pane" data-step="2">
-          <p class="st-text"><b>Keyframe contouring.</b> Each keyframe is shown as a <em>pair</em>: the FULL slice with the
-            crop outlined (to recognize the target in context) and a zoomed CROP (to trace it). The MLLM answers
-            &ldquo;absent&rdquo; or returns closed loops of points; a closed interpolating cubic spline passes through them.
-            Probe slices beyond each end let the extent grow.</p>
+          <p class="st-text">On a few keyframes it sees the full slice and a zoomed crop, and traces a closed outline.</p>
           <div class="kf-wrap">
             <figure class="kf-full" id="st-kffull"><span class="kf-tag">FULL</span></figure>
-            <figure class="kf-crop" id="st-kfcrop"><span class="kf-tag">CROP</span></figure>
+            <figure class="kf-crop" id="st-kfcrop"><span class="kf-tag">CROP</span>
+              <button class="kf-retrace" id="st-retrace" title="Trace again"><i class="fas fa-redo"></i></button></figure>
           </div>
-          <div class="json-card json-inline">
-            <pre id="st-loop" class="json-body"></pre>
-          </div>
-          <div class="has-text-centered"><button class="button is-small is-rounded is-dark" id="st-retrace">
-              <span class="icon"><i class="fas fa-redo"></i></span><span>Trace again</span></button></div>
         </div>
 
-        <!-- 4 assemble -->
         <div class="st-pane" data-step="3">
-          <div class="columns is-vcentered">
-            <div class="column is-6">
-              <p class="st-text"><b>3D assembly.</b> Each keyframe mask becomes a signed distance map; between
-                keyframes the maps are blended linearly and the negative region is the mask. Where a present keyframe
-                neighbors an absent one, the mask ends halfway. A training-free <b>intensity snapping</b> step then moves
-                boundary voxels within a thin band to the side (inside or outside) whose intensity statistics fit them
-                better.</p>
-              <div class="formula">
-                &phi;(<b>u</b>, z) = (1 &minus; &lambda;) &phi;<sub>k</sub>(<b>u</b>) + &lambda; &phi;<sub>k+1</sub>(<b>u</b>),
-                &nbsp; M&#771; = [&phi; &lt; 0]
-              </div>
-              <div class="v3d-label" style="margin-top:1rem">Scrub the assembly <span class="v3d-val" id="asm-val"></span></div>
-              <input type="range" id="asm-range" min="0" max="359" value="0" class="range range-light">
-              <p class="st-note">35 keyframes on 147 slices; Dice 94.3. Try it in 3D in the
-                <a href="#explore3d" data-goto-scene="spleen">Keyframes to 3D</a> view.</p>
-            </div>
-            <div class="column is-6">
-              <div class="asm-video"><video id="asm-video" src="static/assets/video/spleen_assembly.mp4" muted playsinline
-                  preload="auto"></video></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="columns is-multiline principle-cards">
-        <div class="column is-half">
-          <div class="principle-card">
-            <span class="principle-icon"><i class="fas fa-snowflake"></i></span>
-            <div>
-              <h4>Frozen MLLM, nothing trained</h4>
-              <p>No segmentation network, no labeled volumes, no fine-tuning. Swap the backbone and the pipeline stays
-                the same.</p>
-            </div>
-          </div>
-        </div>
-        <div class="column is-half">
-          <div class="principle-card">
-            <span class="principle-icon"><i class="fas fa-user-md"></i></span>
-            <div>
-              <h4>Contours like a radiologist</h4>
-              <p>Find the target while scrolling, check it in other views, draw the boundary on selected slices and
-                leave the slices in between to interpolation.</p>
-            </div>
-          </div>
-        </div>
-        <div class="column is-half">
-          <div class="principle-card">
-            <span class="principle-icon"><i class="fas fa-cube"></i></span>
-            <div>
-              <h4>Geometry keeps 3D consistent</h4>
-              <p>Neighboring slices agree because signed distance blending, not the MLLM, fills the gaps between
-                keyframes.</p>
-            </div>
-          </div>
-        </div>
-        <div class="column is-half">
-          <div class="principle-card">
-            <span class="principle-icon"><i class="fas fa-search"></i></span>
-            <div>
-              <h4>Inspectable at every stage</h4>
-              <p>Plan, boxes and outlines are JSON. Every prompt and reply is stored, so all masks can be rebuilt
-                without API calls.</p>
-            </div>
+          <p class="st-text">Geometry blends the outlines into a 3D mask; no MLLM call.</p>
+          <div class="asm-wrap">
+            <div class="asm-video"><video id="asm-video" src="static/assets/video/spleen_assembly.mp4" muted playsinline
+                preload="auto"></video></div>
+            <input type="range" id="asm-range" min="0" max="359" value="0" class="range">
           </div>
         </div>
       </div>
@@ -526,97 +332,58 @@
   <!-- Results -->
   <section class="section" id="results">
     <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column">
-          <h2 class="title is-3">Main Results</h2>
-          <p class="subtitle is-6">Dice (&times;100), zero-shot, on identical cases. RadContour uses no segmentation
-            network; the trained baselines are marked with <i class="fas fa-cube cube-ico"></i> (3D segmentation
-            network). VoxTell is our run of the released checkpoint; other baselines are quoted from its paper.</p>
-        </div>
-      </div>
+      <h2 class="title is-3 has-text-centered">Results</h2>
 
       <div class="res-block">
-        <div class="res-head">
-          <h3 class="title is-4" id="results-lesions">Tumors and Lesions</h3>
-        </div>
-        <p class="res-desc">Nine benchmarks: unknown concepts, new modalities and unseen datasets. With
-          Fable&nbsp;5.2, RadContour matches the best trained model on the mean and leads where the concept is
-          unknown or the modality new. Pick a benchmark:</p>
+        <h3 class="title is-5">Tumors and lesions <span class="res-note">Dice, 9 benchmarks</span></h3>
         <div class="bench-chips" id="chips-lesions"></div>
         <div class="hbar-chart" id="chart-lesions"></div>
       </div>
 
       <div class="concept-cards">
         <div class="concept-card">
-          <div class="cc-top"><span class="cc-mod">MRI</span> Soft-tissue sarcoma <span class="cc-prompt">&ldquo;soft tissue lesion&rdquo;</span></div>
-          <div class="cc-bars">
-            <div class="cc-row"><span>RadContour</span><div class="cc-track"><i class="cc-bar ours" data-w="76.5"></i></div><b>76.5</b></div>
-            <div class="cc-row"><span>Best trained</span><div class="cc-track"><i class="cc-bar" data-w="39.3"></i></div><b>39.3</b></div>
-          </div>
+          <div class="cc-top">Soft-tissue sarcoma <span class="cc-mod">MRI</span></div>
+          <div class="cc-row"><span>RadContour</span><div class="cc-track"><i class="cc-bar ours" data-w="76.5"></i></div><b>76.5</b></div>
+          <div class="cc-row"><span>Best trained</span><div class="cc-track"><i class="cc-bar" data-w="39.3"></i></div><b>39.3</b></div>
         </div>
         <div class="concept-card">
-          <div class="cc-top"><span class="cc-mod">MRI</span> Bladder cancer <span class="cc-prompt">&ldquo;carcinoma&rdquo;</span></div>
-          <div class="cc-bars">
-            <div class="cc-row"><span>RadContour</span><div class="cc-track"><i class="cc-bar ours" data-w="43.0"></i></div><b>43.0</b></div>
-            <div class="cc-row"><span>Best trained</span><div class="cc-track"><i class="cc-bar" data-w="23.3"></i></div><b>23.3</b></div>
-          </div>
+          <div class="cc-top">Bladder cancer <span class="cc-mod">MRI</span></div>
+          <div class="cc-row"><span>RadContour</span><div class="cc-track"><i class="cc-bar ours" data-w="43.0"></i></div><b>43.0</b></div>
+          <div class="cc-row"><span>Best trained</span><div class="cc-track"><i class="cc-bar" data-w="23.3"></i></div><b>23.3</b></div>
         </div>
         <div class="concept-card">
-          <div class="cc-top"><span class="cc-mod">4 sets</span> Unknown concepts &amp; new modalities</div>
-          <div class="cc-bars">
-            <div class="cc-row"><span>RadContour</span><div class="cc-track"><i class="cc-bar ours" data-w="65.7"></i></div><b>65.7</b></div>
-            <div class="cc-row"><span>Best trained</span><div class="cc-track"><i class="cc-bar" data-w="50.3"></i></div><b>50.3</b></div>
-          </div>
+          <div class="cc-top">Unknown concepts &amp; new modalities</div>
+          <div class="cc-row"><span>RadContour</span><div class="cc-track"><i class="cc-bar ours" data-w="65.7"></i></div><b>65.7</b></div>
+          <div class="cc-row"><span>Best trained</span><div class="cc-track"><i class="cc-bar" data-w="50.3"></i></div><b>50.3</b></div>
         </div>
       </div>
 
-      <div class="columns is-centered has-text-centered" style="margin-top: 2.5rem;">
-        <div class="column is-four-fifths">
-          <h3 class="title is-4">Lesions, Slice by Slice</h3>
-          <p class="subtitle is-6">Scroll through two lesion cases. Ground truth first, RadContour (Fable&nbsp;5.2) next
-            to it, then the best trained model.</p>
-        </div>
-      </div>
-      <div class="roll roll-4" data-roll="sarcoma" data-labels="Input MRI|Ground truth|RadContour|VoxTell"
-        data-title="Soft-tissue sarcoma &middot; MRI &middot; &ldquo;soft tissue lesion&rdquo;" data-fps="4"
-        data-order="input,gt,ours,voxtell"></div>
-      <div class="roll roll-4" data-roll="fedbca" data-labels="Input MRI|Ground truth|RadContour|VoxTell"
-        data-title="Bladder cancer &middot; MRI &middot; &ldquo;carcinoma&rdquo;" data-fps="5"
-        data-order="input,gt,ours,voxtell"></div>
+      <div class="roll roll-4" data-roll="sarcoma" data-labels="MRI|Ground truth|RadContour|VoxTell"
+        data-title="&ldquo;soft tissue lesion&rdquo;" data-fps="4" data-order="input,gt,ours,voxtell"></div>
+      <div class="roll roll-4" data-roll="fedbca" data-labels="MRI|Ground truth|RadContour|VoxTell"
+        data-title="&ldquo;carcinoma&rdquo;" data-fps="5" data-order="input,gt,ours,voxtell"></div>
 
-      <div class="res-block" style="margin-top: 3rem;">
-        <div class="res-head">
-          <h3 class="title is-4" id="results-anatomy">Anatomical Structures</h3>
-        </div>
-        <p class="res-desc">Five anatomy benchmarks with many organs and parts. With Sonnet&nbsp;5.5, RadContour is
-          level with the second-best trained model; the gap lies in small and thin structures.</p>
+      <div class="res-block">
+        <h3 class="title is-5">Anatomy <span class="res-note">Dice, 5 benchmarks</span></h3>
         <div class="bench-chips" id="chips-anatomy"></div>
         <div class="hbar-chart" id="chart-anatomy"></div>
       </div>
 
-      <div class="res-block" style="margin-top: 3rem;">
-        <h3 class="title is-4">3D Semantic Segmentation and the Value of Training</h3>
-        <p class="res-desc">Every baseline here has seen voxel labels of exactly these structures. RadContour works
-          from the class names alone; in-domain training is worth about 12 to 17 points over a frozen MLLM.</p>
+      <div class="res-block">
+        <h3 class="title is-5">Standard benchmarks <span class="res-note">Dice; every baseline trained on these labels</span></h3>
         <div class="std-grid" id="std-grid"></div>
       </div>
     </div>
   </section>
 
-  <!-- Qualitative gallery -->
+  <!-- Gallery -->
   <section class="section alt-section" id="gallery">
     <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Qualitative Gallery</h2>
-          <p class="subtitle is-6">Representative cases (not the best ones). Sweep the slider on the slice; the 3D
-            surfaces of the predictions are colored by their distance to the ground-truth surface.</p>
-        </div>
-      </div>
+      <h2 class="title is-3 has-text-centered">Gallery</h2>
       <div class="tabs is-centered is-toggle is-small gal-group">
         <ul>
-          <li class="is-active" data-group="lesion"><a>Tumors &amp; lesions (Fable&nbsp;5.2)</a></li>
-          <li data-group="anatomy"><a>Anatomy (Sonnet&nbsp;5.5)</a></li>
+          <li class="is-active" data-group="lesion"><a>Tumors &amp; lesions</a></li>
+          <li data-group="anatomy"><a>Anatomy</a></li>
         </ul>
       </div>
       <div class="gal-cases" id="gal-cases"></div>
@@ -627,131 +394,24 @@
   <!-- Wording -->
   <section class="section" id="wording">
     <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Free-Text Prompts</h2>
-          <p class="subtitle is-6">The same targets asked for by their label, a synonym, or a description. A trained
-            text-promptable model is tied to the words it was trained on; an MLLM reads what is meant.</p>
-        </div>
+      <div class="has-text-centered">
+        <h2 class="title is-3">Any Wording Works</h2>
+        <p class="subtitle is-6">&ldquo;spleen&rdquo; &middot; &ldquo;lien&rdquo; &middot; &ldquo;the fist-sized organ in the upper
+          left abdomen&rdquo;</p>
       </div>
-      <div class="columns">
-        <div class="column is-7">
-          <div class="word-chart" id="word-chart"></div>
-        </div>
-        <div class="column is-5">
-          <div class="word-examples">
-            <div class="we-item">
-              <div class="we-k">label</div><div class="we-v">&ldquo;spleen&rdquo;</div>
-            </div>
-            <div class="we-item">
-              <div class="we-k">synonym</div><div class="we-v">&ldquo;lien&rdquo;</div>
-            </div>
-            <div class="we-item">
-              <div class="we-k">description</div><div class="we-v">&ldquo;the fist-sized organ in the upper left abdomen,
-                behind the stomach and under the diaphragm&rdquo;</div>
-            </div>
-            <div class="we-note">Trained model with descriptions: spleen 96.1 &rarr; 0.0, pancreas 84.2 &rarr; 0.4.
-              RadContour: 92.5 &rarr; 92.4, 61.7 &rarr; 61.9.</div>
-            <div class="we-hl">
-              <span>&ldquo;carcinoma&rdquo; &rarr; &ldquo;bladder cancer&rdquo;</span>
-              <b><span data-count="28.2" data-dec="1">28.2</span> &rarr; <span data-count="66.8" data-dec="1">66.8</span></b>
-              <small>Dice on FedBCa when the prompt says which organ</small>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p class="caption has-text-centered">Mean Dice over the anatomy prompts (PENGWIN, AeroPath, BTCV) and the two
-        tumor prompts (sarcoma, FedBCa). RadContour with Haiku&nbsp;5.5; the trained model is VoxTell.</p>
+      <div class="word-chart" id="word-chart"></div>
     </div>
   </section>
 
   <!-- Backbones -->
   <section class="section alt-section" id="backbones">
     <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">The Backbone Sets the Accuracy</h2>
-          <p class="subtitle is-6">RadContour is training-free, so any multimodal LLM can drive it. 25 backbones from six
-            providers, the same ten pelvic CT volumes, an unchanged pipeline. Newer generations of the same line
-            jump ahead.</p>
-        </div>
+      <div class="has-text-centered">
+        <h2 class="title is-3">Better Backbone, Better Masks</h2>
+        <p class="subtitle is-6">25 MLLMs, same pipeline, same ten pelvic CT volumes.</p>
       </div>
       <div class="chart-legend" id="backend-legend"></div>
       <div id="backend-chart" class="bk-chart"></div>
-      <p class="has-text-centered caption">Dice on PENGWIN (sacrum, left and right hip bone), ten volumes.
-        <i class="fas fa-lock-open"></i> marks open-weight models. Dashed line: VoxTell on the same volumes (96.7).
-        Hover a pair above the chart to compare two generations of the same model line.</p>
-    </div>
-  </section>
-
-  <!-- Analysis highlights -->
-  <section class="section" id="analysis">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">What We Learned</h2>
-        </div>
-      </div>
-      <div class="columns is-multiline insight-cards">
-        <div class="column is-half">
-          <div class="insight">
-            <div class="ins-num">82.0 <small>vs</small> 48.7</div>
-            <h4>Recognition is the bottleneck</h4>
-            <p>The MLLM traces what it recognizes. A trained segmenter reaches 82.0 Dice with ground-truth boxes but
-              48.7 with the MLLM's boxes; only 20% of the lost Dice comes from imperfect outlines inside a correct box.</p>
-          </div>
-        </div>
-        <div class="column is-half">
-          <div class="insight">
-            <div class="ins-num">&lt; 1 <small>point</small></div>
-            <h4>A few traced slices suffice</h4>
-            <p>Tracing only every second keyframe (about 7 mm between traced slices instead of 3.4 mm) loses less than
-              one Dice point; accuracy falls quickly beyond 14 mm. Three times fewer keyframes save over a third of the
-              calls for about one point.</p>
-          </div>
-        </div>
-        <div class="column is-half">
-          <div class="insight">
-            <div class="ins-num">+2.4</div>
-            <h4>Snapping is free accuracy</h4>
-            <p>Moving boundary voxels to the side whose intensity statistics fit them adds about 2.4 Dice on anatomy
-              with no extra MLLM call.</p>
-          </div>
-        </div>
-        <div class="column is-half">
-          <div class="insight">
-            <div class="ins-num">$0.14 <small>/</small> $1.5</div>
-            <h4>Cost per volume</h4>
-            <p>Summed over all MLLM calls, with Haiku&nbsp;5.5 and Sonnet&nbsp;5.5. The marginal cost of a new concept
-              or modality is a new prompt, not a new labeled dataset and training run.</p>
-          </div>
-        </div>
-      </div>
-      <p class="caption has-text-centered">RadContour still trails trained segmenters on small lesions and on small
-        or thin organs, is slower than a single network pass, and relies on commercial APIs whose models change over
-        time. Sending patient images to an external API must comply with local data-protection rules.</p>
-    </div>
-  </section>
-
-  <!-- Related Links -->
-  <section class="section alt-section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column is-full-width">
-          <h2 class="title is-3">Related Links</h2>
-          <div class="content has-text-justified">
-            <p><a href="https://github.com/ajhamdi/llmseg-code">LLMSeg: Training-Free Text-Prompted Image Segmentation
-                with B-Splines</a>, the 2D predecessor of RadContour</p>
-            <p><a href="https://arxiv.org/abs/2511.11450">VoxTell: free-text promptable universal 3D medical image
-                segmentation</a>, the trained state of the art we compare against</p>
-            <p><a href="https://github.com/bowang-lab/MedSAM2">MedSAM2</a>, used as an alternative tracer in our
-                analysis</p>
-            <p>Benchmarks: Pediatric-CT-SEG, AeroPath, VEELA, HVSMR-2.0, ACRIN-NSCLC-FDG-PET, ISBI 2015 MS,
-              Adrenal-ACC-Ki67-Seg, HCC-TACE-Seg, PENGWIN, BrainMetShare, QIN-Breast, Soft-Tissue-Sarcoma, FedBCa,
-              MedSeg Esophageal, BTCV, AMOS, BraTS</p>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -769,30 +429,14 @@
       year={2026},
 }</code></pre>
       </div>
-      <p class="has-text-justified" style="margin-top: 1rem;">
-        All benchmarks are public datasets; none is redistributed here, so please respect each dataset's license. The
-        3D surfaces and slices on this page show cases from BTCV, HVSMR-2.0, PENGWIN, Soft-Tissue-Sarcoma, FedBCa and
-        the other benchmarks above. We thank their authors for making them available.
-      </p>
     </div>
   </section>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <div class="columns is-centered">
-        <div class="column is-8">
-          <div class="content">
-            <p style="text-align:center">
-              Page layout adapted from the <a href="https://nerfies.github.io/">Nerfies website</a>; 3D viewer built with
-              <a href="https://threejs.org/">three.js</a>.
-            </p>
-            <p style="text-align:center">
-              Please contact <a href="https://abdullahamdi.com/">Abdullah Hamdi</a> or
-              <a href="https://carloshinojosa.me/">Carlos Hinojosa</a> for feedback and questions.
-            </p>
-          </div>
-        </div>
+      <div class="content has-text-centered">
+        <p>Layout adapted from the <a href="https://nerfies.github.io/">Nerfies website</a>; 3D with
+          <a href="https://threejs.org/">three.js</a>. Related: <a href="https://github.com/ajhamdi/llmseg-code">LLMSeg</a>.</p>
       </div>
     </div>
   </footer>
