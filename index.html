@@ -258,29 +258,13 @@
         <h2 class="title is-3">Why Not Segment Slice by Slice?</h2>
         <p class="subtitle is-6">Same MLLM, two ways: a 2D segmenter on every slice, or RadContour.</p>
       </div>
-      <div class="roll" data-roll="naive" data-labels="Ground truth|2D MLLM on every slice|RadContour" data-fps="12"></div>
-      <div class="vs-strip">
-        <div><span class="vs-big muted">54.8</span><span class="vs-lab">Dice, 4,182 calls</span></div>
-        <div class="vs-mid">vs</div>
-        <div><span class="vs-big">82.5</span><span class="vs-lab">Dice, 34 calls</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Video -->
-  <section class="section" id="video">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered">Video</h2>
-      <div class="video-frame">
-        <video controls preload="metadata" poster="static/assets/video/promo_poster.jpg" playsinline>
-          <source src="static/assets/video/radcontour_promo.mp4" type="video/mp4">
-        </video>
-      </div>
+      <div class="roll" data-roll="naive" data-labels="Ground truth|2D MLLM on every slice|RadContour"
+        data-notes="|4,182 MLLM calls|34 MLLM calls" data-fps="12"></div>
     </div>
   </section>
 
   <!-- Method -->
-  <section class="section alt-section" id="method">
+  <section class="section" id="method">
     <div class="container is-max-desktop">
       <h2 class="title is-3 has-text-centered">How It Works</h2>
       <img class="figure-img zoomable" src="static/assets/figs/pipeline.webp" loading="lazy" decoding="async"
@@ -341,6 +325,18 @@
             <input type="range" id="asm-range" min="0" max="359" value="0" class="range">
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video -->
+  <section class="section alt-section" id="video">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Video</h2>
+      <div class="video-frame">
+        <video controls preload="metadata" poster="static/assets/video/promo_poster.jpg" playsinline>
+          <source src="static/assets/video/radcontour_promo.mp4" type="video/mp4">
+        </video>
       </div>
     </div>
   </section>

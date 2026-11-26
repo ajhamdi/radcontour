@@ -216,6 +216,7 @@ window.RC_initCompare = initCompare;
 function initRoll(host, meta) {
   var order = (host.getAttribute('data-order') || meta.panels.join(',')).split(',');
   var labels = (host.getAttribute('data-labels') || order.join('|')).split('|');
+  var notes = (host.getAttribute('data-notes') || '').split('|');      // optional line under each panel
   var fps = parseFloat(host.getAttribute('data-fps') || '10');
   var n = meta.n, idx = Math.floor(n * 0.45), playing = !REDUCED, timer = null;
 
@@ -246,6 +247,7 @@ function initRoll(host, meta) {
     fig.appendChild(im);
     if (meta.dice && meta.dice[p] !== undefined) fig.appendChild(el('span', 'dice-chip', 'Dice ' + fmt(meta.dice[p])));
     fig.appendChild(el('figcaption', null, labels[i]));
+    if (notes[i]) fig.appendChild(el('div', 'roll-note' + (p === 'ours' ? ' is-ours' : ''), notes[i]));
     panels.appendChild(fig);
     imgs.push([p, im]);
   });

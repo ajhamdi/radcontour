@@ -213,6 +213,8 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
 .roll-panel figcaption { text-align: center; font-size: 0.8rem; font-weight: 600; color: #475569; margin-top: 0.3rem; }
 .roll-panel.is-ours img { outline: 3px solid var(--accent); outline-offset: -3px; }
 .roll-panel.is-ours figcaption { color: var(--accent-deep); }
+.roll-note { display: table; margin: 0.35rem auto 0; padding: 0.15rem 0.75rem; border-radius: 999px; font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; font-weight: 700; background: #f1f5f9; color: #64748b; font-variant-numeric: tabular-nums; }
+.roll-note.is-ours { background: var(--accent); color: #fff; }
 .roll-panel .dice-chip { position: absolute; top: 0.4rem; right: 0.4rem; font-size: 0.72rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: rgba(255, 255, 255, 0.9); color: var(--ink); }
 .roll-panel.is-ours .dice-chip { background: var(--accent); color: #fff; }
 .roll-scout { position: relative; width: 120px; }
@@ -225,11 +227,6 @@ h1, h2, h3, h4, .title { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
 .roll-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.3rem 0.9rem; font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; }
 .roll-legend i { display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 2px; margin-right: 0.3rem; vertical-align: -1px; }
 
-.vs-strip { display: flex; justify-content: center; align-items: center; gap: 2rem; margin-top: 0.4rem; text-align: center; }
-.vs-big { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; color: var(--accent-deep); line-height: 1.1; }
-.vs-big.muted { color: #94a3b8; }
-.vs-lab { font-size: 0.85rem; color: var(--muted); }
-.vs-mid { font-family: 'Space Grotesk', sans-serif; color: #cbd5e1; font-weight: 700; }
 
 /* --------------------------------------------------------------- method -- */
 .stepper { margin-top: 1.6rem; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(15, 52, 96, 0.09); padding: 1rem 1.3rem 1.3rem; }
